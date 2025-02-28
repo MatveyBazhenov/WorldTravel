@@ -1,36 +1,56 @@
-#include "ResultPanel.h"
+#include "ResultPanel.hpp"
 
-const int ID_TICKET = 123;
-const int ID_OPTION1 = 124;
-const int ID_OPTION2 = 125;
-const int ID_BACK2 = 126;
-const int ID_DESCRIBTION = 127;
-const int ID_SAVEALL = 128;
-const int ID_SAVEOPTION1 = 129;
-const int ID_SAVEOPTION2 = 130;
+ResultPanel::ResultPanel(wxNotebook *parent) : wxPanel(parent, wxID_ANY) {
+  wxLocale locale;
+  locale.Init(wxLANGUAGE_RUSSIAN);
+  wxBoxSizer *mainSizer = new wxBoxSizer(wxVERTICAL);
 
-ResultPanel::ResultPanel(wxNotebook *parent)
-    : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize,
-              wxBORDER_SUNKEN) {
-  btnTicket = new wxButton(this, ID_TICKET, wxT("Билеты"), wxPoint(180, 300),
-                           wxSize(200, 80));
-  btnOption1 = new wxButton(this, ID_OPTION1, wxT("Вариант 1"),
-                            wxPoint(180, 500), wxSize(200, 80));
-  btnOption2 = new wxButton(this, ID_OPTION2, wxT("Вариант 2"),
-                            wxPoint(180, 700), wxSize(200, 80));
+  wxBoxSizer *topSizer = new wxBoxSizer(wxHORIZONTAL);
   btnDescribtion =
-      new wxButton(this, ID_DESCRIBTION, wxT("Описание достопримечательностей"),
-                   wxPoint(200, 50), wxSize(300, 80));
-  btnBack2 = new wxButton(this, ID_BACK2, wxT("Обратно к поиску"),
-                          wxPoint(900, 50), wxSize(150, 80));
-  btnSaveAll = new wxButton(this, ID_SAVEALL, wxT("Сохранить все маршруты"),
-                            wxPoint(1700, 50), wxSize(150, 80));
+      new wxButton(this, ID_DESCRIBTION, "Описание достопримечательностей");
+  btnBack2 = new wxButton(this, ID_BACK2, "Обратно к поиску");
+  btnSaveAll = new wxButton(this, ID_SAVEALL, "Сохранить все маршруты");
+
+  topSizer->Add(btnDescribtion, 0, wxALL, 5);
+  topSizer->AddStretchSpacer();
+  topSizer->Add(btnBack2, 0, wxALL, 5);
+  topSizer->Add(btnSaveAll, 0, wxALL, 5);
+
+  wxGridSizer *centerSizer = new wxGridSizer(3, 1, 10, 10);
+  btnTicket = new wxButton(this, ID_TICKET, "Билеты");
+  btnTicket->SetMinSize(wxSize(200, 100));
+  btnOption1 = new wxButton(this, ID_OPTION1, "Вариант 1");
+  btnOption1->SetMinSize(wxSize(200, 100));
+  btnOption2 = new wxButton(this, ID_OPTION2, "Вариант 2");
+  btnOption2->SetMinSize(wxSize(200, 100));
+
+  centerSizer->Add(btnTicket, 0, wxALIGN_CENTER | wxALL, 5);
+  centerSizer->Add(btnOption1, 0, wxALIGN_CENTER | wxALL, 5);
+  centerSizer->Add(btnOption2, 0, wxALIGN_CENTER | wxALL, 5);
+
+  wxBoxSizer *bottomSizer = new wxBoxSizer(wxHORIZONTAL);
   btnSaveOption1 =
-      new wxButton(this, ID_SAVEOPTION1, wxT("Сохранить первый маршрут"),
-                   wxPoint(1700, 50), wxSize(200, 80));
+      new wxButton(this, ID_SAVEOPTION1, "Сохранить первый маршрут");
   btnSaveOption2 =
-      new wxButton(this, ID_SAVEOPTION2, wxT("Сохранить второй маршрут"),
-                   wxPoint(1700, 50), wxSize(200, 80));
+      new wxButton(this, ID_SAVEOPTION2, "Сохранить второй маршрут");
+
+  bottomSizer->Add(btnSaveOption1, 0, wxALL, 5);
+  bottomSizer->Add(btnSaveOption2, 0, wxALL, 5);
+
+  mainSizer->Add(topSizer, 0, wxEXPAND | wxALL, 10);
+  mainSizer->Add(centerSizer, 1, wxEXPAND | wxALL, 10);
+  mainSizer->Add(bottomSizer, 0, wxALIGN_RIGHT | wxALL, 10);
+
+  this->SetSizer(mainSizer);
+  Center();
+  this->Fit();
+  btnBack2->Bind(wxEVT_BUTTON, &ResultPanel::OnBack2, this);
 }
 
-ResultPanel::~ResultPanel() {}
+void ResultPanel::OnBack2(wxCommandEvent &event) {
+  wxNotebook *parentNotebook = static_cast<wxNotebook *>(GetParent());
+  FindPanel *findPanel = new FindPanel(parentNotebook);
+  parentNotebook->AddPage(findPanel, "Поиск", true);
+}
+
+ResultPanel::~ResultPanel() {};

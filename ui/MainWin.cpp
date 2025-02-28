@@ -1,30 +1,23 @@
-#include "MainWin.h"
-#include <wx/filename.h>
-#include <wx/icon.h>
-
-#include "AccountPanel.h"
-#include "EnterPanel.h"
-#include "FindPanel.h"
-#include "ResultPanel.h"
+#include "MainWin.hpp"
 
 MainWin::MainWin() : wxFrame(NULL, wxID_ANY, "WorldTravel") {
   SetIcon(wxIcon(wxT("ic"), wxBITMAP_TYPE_ICO));
-
+  wxLocale locale;
+  locale.Init(wxLANGUAGE_RUSSIAN);
   notebook = new wxNotebook(this, wxID_ANY);
 
   leftPanel = new LeftPanel(notebook);
-  rightPanel = new RightPanel(notebook);
-  EnterPanel *enterPanel = new EnterPanel(notebook);
+  // rightPanel = new RightPanel(notebook);
+  // EnterPanel *enterPanel = new EnterPanel(notebook);
   FindPanel *findPanel = new FindPanel(notebook);
   AccountPanel *accountPanel = new AccountPanel(notebook);
-  ResultPanel *resultPanel = new ResultPanel(notebook);
+  notebook->AddPage(findPanel, "Подобрать путешествие");
 
-  notebook->AddPage(leftPanel, "Login to account", true);
-  notebook->AddPage(rightPanel, "Register");
-  notebook->AddPage(enterPanel, "Login");
-  notebook->AddPage(findPanel, "Pick up a trip");
-  notebook->AddPage(accountPanel, "Personal Account");
-  notebook->AddPage(resultPanel, "Tickets Found");
+  notebook->AddPage(leftPanel, "Мой аккаунт", true);
+  // notebook->AddPage(rightPanel, "Зарегистрироваться");
+  // notebook->AddPage(enterPanel, "Войти");
+  notebook->AddPage(findPanel, "Подобрать путешествие");
+  notebook->AddPage(accountPanel, "Личный кабинет");
 }
 
 MainWin::~MainWin() {}

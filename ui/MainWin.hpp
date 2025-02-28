@@ -1,8 +1,8 @@
-#ifndef MAINWIN_H
-#define MAINWIN_H
+#ifndef MAINWIN_HPP
+#define MAINWIN_HPP
 
-#include "LeftPanel.h"
-#include "RightPanel.h"
+#include "LeftPanel.hpp"
+
 #include <wx/button.h>
 #include <wx/frame.h>
 #include <wx/icon.h>
@@ -18,7 +18,8 @@ public:
 private:
   wxNotebook *notebook;
   LeftPanel *leftPanel;
-  RightPanel *rightPanel;
+  //RightPanel *rightPanel;
+  
 };
 
 #endif

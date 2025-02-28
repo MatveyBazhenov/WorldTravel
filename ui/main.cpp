@@ -1,4 +1,9 @@
-#include "MainWin.h"
+#include "AccountPanel.hpp"
+#include "FindPanel.hpp"
+#include "MainWin.hpp"
+#include "ResultPanel.hpp"
+#include <wx/filename.h>
+#include <wx/icon.h>
 #include <wx/wx.h>
 
 class MyApp : public wxApp {
