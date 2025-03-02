@@ -20,11 +20,16 @@ add_library(${PROJECT_NAME}_objs OBJECT
 )
 target_link_libraries(${PROJECT_NAME}_objs PUBLIC userver::postgresql)
 
+add_library(${PROJECT_NAME}_obj OBJECT
+    src/login.cpp
+    src/login.hpp
+)
+target_link_libraries(${PROJECT_NAME}_obj PUBLIC userver::postgresql)
+
 
 # The Service
 add_executable(${PROJECT_NAME} src/main.cpp)
-target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_objs)
-
+target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_objs ${PROJECT_NAME}_obj)
 
 # Unit Tests
 add_executable(${PROJECT_NAME}_unittest

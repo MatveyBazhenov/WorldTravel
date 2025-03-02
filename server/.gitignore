@@ -15,4 +15,3 @@ Testing/
 .DS_Store
 Makefile.local
 CMakeUserPresets.json
-.devcontainer

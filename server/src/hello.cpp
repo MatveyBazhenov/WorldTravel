@@ -15,7 +15,7 @@ namespace {
 
 class Hello final : public userver::server::handlers::HttpHandlerBase {
  public:
-  static constexpr std::string_view kName = "handler-hello";
+  [[maybe_unused]]static constexpr std::string_view kName = "handler-hello";
 
   Hello(const userver::components::ComponentConfig& config,
         const userver::components::ComponentContext& component_context)
@@ -70,8 +70,6 @@ std::string SayHelloTo(std::string_view name, UserType type) {
 
 void AppendHello(userver::components::ComponentList& component_list) {
   component_list.Append<Hello>();
-  component_list.Append<userver::components::Postgres>("postgres-db-1");
-  component_list.Append<userver::clients::dns::Component>();
 }
 
 }  // namespace service_template
