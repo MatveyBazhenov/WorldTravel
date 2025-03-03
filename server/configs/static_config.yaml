@@ -56,7 +56,12 @@ components_manager:
             task_processor: main-task-processor  # Run it on CPU bound task processor
 
         handler-login:
-            path: /v1/login
+            path: /login
+            method: POST
+            task_processor: main-task-processor
+        
+        handler-registration:
+            path: /registration
             method: POST
             task_processor: main-task-processor
             
