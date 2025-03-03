@@ -43,15 +43,15 @@ class LoginHandler final : public userver::server::handlers::HttpHandlerBase {
 
     auto result = postgres_->Execute(userver::storages::postgres::ClusterHostType::kMaster, kCheckLoginQuery, login);
     auto count = result.AsSingleRow<int>();
-    if (count > 0) {
+    if (count == 0) {
         request.SetResponseStatus(userver::server::http::HttpStatus::kConflict);
-        return service_template::LoginResponse(login, Loginstatus::kExists);
+        return service_template::LoginResponse(login, LoginStatus::kNotFound);
     }
-    if (login.size() <= 50) {
-        return service_template::LoginResponse(login, Loginstatus::kSuccess);
+    if (login.size() <= 50 && !login.empty()) {
+        return service_template::LoginResponse(login, LoginStatus::kSuccess);
     } else {
         request.SetResponseStatus(userver::server::http::HttpStatus::kBadRequest);
-        return service_template::LoginResponse(login, Loginstatus::kInvalid);
+        return service_template::LoginResponse(login, LoginStatus::kInvalid);
     }
   }
 
@@ -60,16 +60,16 @@ class LoginHandler final : public userver::server::handlers::HttpHandlerBase {
 
 }  // namespace
 
-std::string LoginResponse(std::string_view login, Loginstatus status) {
+std::string LoginResponse(std::string_view login, LoginStatus status) {
   switch (status) {
-    case service_template::Loginstatus::kSuccess:
-        return fmt::format("Welcome, {}", login);
-    case service_template::Loginstatus::kInvalid:
-        return "Invalid login. Too long";
-    case service_template::Loginstatus::kExists:
-        return "Login already exists. Please choose a differnet one";
+    case service_template::LoginStatus::kSuccess:
+        return fmt::format("Welcome, {}\n", login);
+    case service_template::LoginStatus::kInvalid:
+        return "Invalid login. Too long\n";
+    case service_template::LoginStatus::kNotFound:
+         return "Unknown user\n";
     default:
-        return "Unknown Status";
+        return "Unknown Status\n";
   } 
 
   UASSERT(false);

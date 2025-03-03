@@ -7,8 +7,8 @@
 
 namespace service_template {
 
-enum class Loginstatus { kSuccess, kInvalid, kExists };
-std::string LoginResponse(std::string_view login, Loginstatus type);
+enum class LoginStatus { kSuccess, kInvalid, kNotFound };
+std::string LoginResponse(std::string_view login, LoginStatus type);
 
 void AppendLogin(userver::components::ComponentList& component_list);
 
