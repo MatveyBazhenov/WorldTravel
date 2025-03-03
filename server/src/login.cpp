@@ -77,8 +77,6 @@ std::string LoginResponse(std::string_view login, Loginstatus status) {
 
 void AppendLogin(userver::components::ComponentList& component_list) {
   component_list.Append<LoginHandler>();
-  component_list.Append<userver::components::Postgres>("postgres-db-1");
-  component_list.Append<userver::clients::dns::Component>();
 }
 
 }  // namespace service_template

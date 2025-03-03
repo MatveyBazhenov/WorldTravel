@@ -5,6 +5,12 @@
 #include <userver/testsuite/testsuite_support.hpp>
 #include <userver/utils/daemon_run.hpp>
 
+#include <userver/clients/dns/component.hpp>
+#include <userver/components/component.hpp>
+#include <userver/server/handlers/http_handler_base.hpp>
+#include <userver/storages/postgres/cluster.hpp>
+#include <userver/storages/postgres/component.hpp>
+
 #include "hello.hpp"
 #include "login.hpp"
 
@@ -13,7 +19,9 @@ int main(int argc, char* argv[]) {
                             .Append<userver::server::handlers::Ping>()
                             .Append<userver::components::TestsuiteSupport>()
                             .Append<userver::components::HttpClient>()
-                            .Append<userver::server::handlers::TestsControl>();
+                            .Append<userver::server::handlers::TestsControl>()
+                            .Append<userver::components::Postgres>("postgres-db-1")
+                            .Append<userver::clients::dns::Component>();
 
   service_template::AppendHello(component_list);
   service_template::AppendLogin(component_list);
