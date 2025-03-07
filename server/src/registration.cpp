@@ -1,5 +1,6 @@
 #include "registration.hpp"
 
+#include <string_view>
 #include <userver/server/http/http_status.hpp>
 #include <userver/storages/postgres/cluster_types.hpp>
 #include <userver/storages/postgres/postgres_fwd.hpp>
@@ -9,52 +10,63 @@
 
 #include <userver/clients/dns/component.hpp>
 #include <userver/components/component.hpp>
+#include <userver/formats/json/serialize.hpp>
 #include <userver/server/handlers/http_handler_base.hpp>
 #include <userver/storages/postgres/cluster.hpp>
 #include <userver/storages/postgres/component.hpp>
 #include <userver/utils/assert.hpp>
-#include <userver/formats/json/serialize.hpp>
 
 namespace service_template {
 
 namespace {
 
-class RegistrationHandler final : public userver::server::handlers::HttpHandlerBase {
+class RegistrationHandler final
+    : public userver::server::handlers::HttpHandlerBase {
  public:
   static constexpr std::string_view kName = "handler-registration";
 
-  RegistrationHandler(const userver::components::ComponentConfig& config,
-                      const userver::components::ComponentContext& component_context)
+  RegistrationHandler(
+      const userver::components::ComponentConfig& config,
+      const userver::components::ComponentContext& component_context)
       : HttpHandlerBase(config, component_context),
-        postgres_(component_context.FindComponent<userver::components::Postgres>("postgres-db-1").GetCluster()) {}
+        postgres_(
+            component_context
+                .FindComponent<userver::components::Postgres>("postgres-db-1")
+                .GetCluster()) {}
 
   std::string HandleRequestThrow(
       const userver::server::http::HttpRequest& request,
       userver::server::request::RequestContext&) const override {
-    
-    const auto& json = userver::formats::json::FromString(request.RequestBody());
-    auto username = json["login"].As<std::string>();
+    const auto& json =
+        userver::formats::json::FromString(request.RequestBody());
 
-    if (username.empty() || username.size() > 50) {
-        request.SetResponseStatus(userver::server::http::HttpStatus::kBadRequest);
-        return RegistrationResponse(username, RegistrationStatus::kInvalid);
+    auto username = json["username"].As<std::string>();
+    auto password = json["password"].As<std::string>();
+
+    if (username.empty() || username.size() >= 50 || password.empty() ||
+        password.size() > 50) {
+      request.SetResponseStatus(userver::server::http::HttpStatus::kBadRequest);
+      return RegistrationResponse(username, RegistrationStatus::kInvalid);
     }
 
     constexpr const char* kCheckUserQuery = R"(
-        SELECT COUNT(*) FROM hello_schema.users WHERE name = $1
+        SELECT COUNT(*) FROM WorldTravel.users WHERE username = $1
     )";
-    auto result = postgres_->Execute(userver::storages::postgres::ClusterHostType::kMaster, kCheckUserQuery, username);
+    auto result = postgres_->Execute(
+        userver::storages::postgres::ClusterHostType::kMaster, kCheckUserQuery,
+        username);
     auto count = result.AsSingleRow<int>();
 
     if (count > 0) {
-        request.SetResponseStatus(userver::server::http::HttpStatus::kConflict);
-        return RegistrationResponse(username, RegistrationStatus::kExists);
+      request.SetResponseStatus(userver::server::http::HttpStatus::kConflict);
+      return RegistrationResponse(username, RegistrationStatus::kConflict);
     }
 
     constexpr const char* kInsertUserQuery = R"(
-        INSERT INTO hello_schema.users (name) VALUES ($1)
+        INSERT INTO WorldTravel.users (username, password) VALUES ($1, $2)
     )";
-    postgres_->Execute(userver::storages::postgres::ClusterHostType::kMaster, kInsertUserQuery, username);
+    postgres_->Execute(userver::storages::postgres::ClusterHostType::kMaster,
+                       kInsertUserQuery, username, password);
 
     return RegistrationResponse(username, RegistrationStatus::kSuccess);
   }
@@ -64,16 +76,24 @@ class RegistrationHandler final : public userver::server::handlers::HttpHandlerB
 
 }  // namespace
 
-std::string RegistrationResponse(std::string_view username, RegistrationStatus status) {
+std::string RegistrationResponse(std::string_view username,
+                                 RegistrationStatus status) {
   switch (status) {
     case RegistrationStatus::kSuccess:
-        return fmt::format("User {} successfully registered.\n", username);
-    case RegistrationStatus::kExists:
-        return "User already exists. Please choose a different username.\n";
+      return fmt::format(R"({{"status": "ok", "user_key": "{}"}})"
+                         "\n",
+                         username);
+    case RegistrationStatus::kConflict:
+      return fmt::format(
+          R"({{"status": "error", "message": "User {} already exists"}})"
+          "\n",
+          username);
     case RegistrationStatus::kInvalid:
-        return "Invalid username. Must be non-empty and up to 50 characters.\n";
+      return R"({"status": "error", "message": "Invalid username or password. Must be non-empty and up to 50 characters"})"
+             "\n";
     default:
-        return "Unknown registration status.\n";
+      return R"({"status": "error", "message": "Unknown registration status"})"
+             "\n";
   }
 }
 
