@@ -14,14 +14,14 @@ const int ID_PASSWORD2 = wxID_HIGHEST + 18;
 
 class EnterWindow : public wxFrame {
 public:
-  EnterWindow(wxWindow *parent = nullptr);
+    EnterWindow(wxWindow *parent = nullptr);
 
 private:
-  wxButton *btnEnter2;
-  wxTextCtrl *txtLogin;
-  wxTextCtrl *txtPassword;
-  wxBoxSizer *sizer;
-  wxGridSizer *centsizer;
+    wxButton *btnEnter2;
+    wxTextCtrl *txtLogin;
+    wxTextCtrl *txtPassword;
+    wxBoxSizer *sizer;
+    wxGridSizer *centsizer;
 };
 
 #endif

@@ -1,23 +1,31 @@
 #include "MainWin.hpp"
 
-MainWin::MainWin() : wxFrame(NULL, wxID_ANY, "WorldTravel") {
-  SetIcon(wxIcon(wxT("ic"), wxBITMAP_TYPE_ICO));
-  wxLocale locale;
-  locale.Init(wxLANGUAGE_RUSSIAN);
-  notebook = new wxNotebook(this, wxID_ANY);
+wxBEGIN_EVENT_TABLE(MainWin, wxFrame)
+    EVT_NOTEBOOK_PAGE_CHANGED(wxID_ANY, MainWin::OnPageChanged)
+        wxEND_EVENT_TABLE()
 
-  leftPanel = new LeftPanel(notebook);
-  // rightPanel = new RightPanel(notebook);
-  // EnterPanel *enterPanel = new EnterPanel(notebook);
-  FindPanel *findPanel = new FindPanel(notebook);
-  AccountPanel *accountPanel = new AccountPanel(notebook);
-  notebook->AddPage(findPanel, "Подобрать путешествие");
+            MainWin::MainWin()
+    : wxFrame(NULL, wxID_ANY, "WorldTravel") {
+    SetIcon(wxIcon(wxT("ic"), wxBITMAP_TYPE_ICO));
+    wxLocale locale;
+    locale.Init(wxLANGUAGE_RUSSIAN);
+    notebook = new wxNotebook(this, wxID_ANY);
 
-  notebook->AddPage(leftPanel, "Мой аккаунт", true);
-  // notebook->AddPage(rightPanel, "Зарегистрироваться");
-  // notebook->AddPage(enterPanel, "Войти");
-  notebook->AddPage(findPanel, "Подобрать путешествие");
-  notebook->AddPage(accountPanel, "Личный кабинет");
+    leftPanel = new LeftPanel(notebook);
+    FindPanel *findPanel = new FindPanel(notebook);
+
+    notebook->AddPage(leftPanel, "Мой аккаунт", true);
+    notebook->AddPage(findPanel, "Подобрать путешествие");
+    accountPanel = new AccountPanel(notebook);
+    notebook->AddPage(accountPanel, "Личный кабинет");
 }
 
-MainWin::~MainWin() {}
+void MainWin::OnPageChanged(wxBookCtrlEvent &event) {
+    if (notebook->GetCurrentPage() == accountPanel && accountPanel != nullptr) {
+        accountPanel->RefreshDrives();
+    }
+    event.Skip();
+}
+
+MainWin::~MainWin() {
+}
