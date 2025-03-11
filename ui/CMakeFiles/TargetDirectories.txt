@@ -1,0 +1,3 @@
+/home/smallmish/Документы/c++/project/ui/CMakeFiles/MyExecutable.dir
+/home/smallmish/Документы/c++/project/ui/CMakeFiles/edit_cache.dir
+/home/smallmish/Документы/c++/project/ui/CMakeFiles/rebuild_cache.dir
