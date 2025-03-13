@@ -15,6 +15,7 @@
 #include <userver/storages/postgres/cluster.hpp>
 #include <userver/storages/postgres/component.hpp>
 #include <userver/utils/assert.hpp>
+#include <userver/utils/uuid7.hpp>
 
 namespace service_template {
 
@@ -42,6 +43,7 @@ class RegistrationHandler final
 
     auto username = json["username"].As<std::string>();
     auto password = json["password"].As<std::string>();
+    std::string user_key = userver::utils::generators::GenerateUuidV7();
 
     if (username.empty() || username.size() >= 50 || password.empty() ||
         password.size() > 50) {
@@ -63,12 +65,12 @@ class RegistrationHandler final
     }
 
     constexpr const char* kInsertUserQuery = R"(
-        INSERT INTO WorldTravel.users (username, password) VALUES ($1, $2)
+        INSERT INTO WorldTravel.users (username, password, user_key) VALUES ($1, $2, $3)
     )";
     postgres_->Execute(userver::storages::postgres::ClusterHostType::kMaster,
-                       kInsertUserQuery, username, password);
+                       kInsertUserQuery, username, password, user_key);
 
-    return RegistrationResponse(username, RegistrationStatus::kSuccess);
+    return RegistrationResponse(user_key, RegistrationStatus::kSuccess);
   }
 
   userver::storages::postgres::ClusterPtr postgres_;
@@ -76,18 +78,18 @@ class RegistrationHandler final
 
 }  // namespace
 
-std::string RegistrationResponse(std::string_view username,
+std::string RegistrationResponse(std::string_view message,
                                  RegistrationStatus status) {
   switch (status) {
     case RegistrationStatus::kSuccess:
       return fmt::format(R"({{"status": "ok", "user_key": "{}"}})"
                          "\n",
-                         username);
+                         message);
     case RegistrationStatus::kConflict:
       return fmt::format(
           R"({{"status": "error", "message": "User {} already exists"}})"
           "\n",
-          username);
+          message);
     case RegistrationStatus::kInvalid:
       return R"({"status": "error", "message": "Invalid username or password. Must be non-empty and up to 50 characters"})"
              "\n";
