@@ -1,8 +1,10 @@
-DROP SCHEMA IF EXISTS hello_schema CASCADE;
+DROP SCHEMA IF EXISTS WorldTravel CASCADE;
 
-CREATE SCHEMA IF NOT EXISTS hello_schema;
+CREATE SCHEMA IF NOT EXISTS WorldTravel;
 
-CREATE TABLE IF NOT EXISTS hello_schema.users (
-    name TEXT PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS WorldTravel.users (
+    username TEXT PRIMARY KEY,
+    password TEXT NOT NULL,
+    user_key TEXT NOT NULL,
     count INTEGER DEFAULT(1)
 );

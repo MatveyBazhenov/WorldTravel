@@ -1,4 +1,4 @@
-INSERT INTO hello_schema.users(name, count)
-VALUES ('user-from-initial_data.sql', 42)
-ON CONFLICT (name)
+INSERT INTO WorldTravel.users(username, password, user_key,count)
+VALUES ('test_user', 'test_password', 'key_123', 1)
+ON CONFLICT (username)
 DO NOTHING;
