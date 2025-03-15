@@ -32,9 +32,16 @@ add_library(${PROJECT_NAME}_registration OBJECT
 )
 target_link_libraries(${PROJECT_NAME}_registration PUBLIC userver::postgresql)
 
+add_library(${PROJECT_NAME}_http_client OBJECT
+    src/find.hpp
+    src/aviasalesAPI.hpp
+)
+target_link_libraries(${PROJECT_NAME}_http_client PUBLIC userver::core)
+
+
 # The Service
 add_executable(${PROJECT_NAME} src/main.cpp)
-target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_objs ${PROJECT_NAME}_login  ${PROJECT_NAME}_registration )
+target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_objs ${PROJECT_NAME}_login  ${PROJECT_NAME}_registration ${PROJECT_NAME}_http_client)
 
 # Unit Tests
 add_executable(${PROJECT_NAME}_unittest

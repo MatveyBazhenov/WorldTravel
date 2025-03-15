@@ -24,7 +24,7 @@ namespace {
 class RegistrationHandler final
     : public userver::server::handlers::HttpHandlerBase {
  public:
-  static constexpr std::string_view kName = "handler-registration";
+  [[maybe_unused]] static constexpr std::string_view kName = "handler-registration";
 
   RegistrationHandler(
       const userver::components::ComponentConfig& config,
