@@ -14,6 +14,8 @@
 #include "hello.hpp"
 #include "login.hpp"
 #include "registration.hpp"
+#include "find.hpp"
+#include "aviasalesAPI.hpp"
 
 int main(int argc, char* argv[]) {
   auto component_list = userver::components::MinimalServerComponentList()
@@ -22,7 +24,10 @@ int main(int argc, char* argv[]) {
                             .Append<userver::components::HttpClient>()
                             .Append<userver::server::handlers::TestsControl>()
                             .Append<userver::components::Postgres>("postgres-db-1")
-                            .Append<userver::clients::dns::Component>();
+                            .Append<userver::clients::dns::Component>()
+                            .Append<AviasalesAPI>()
+                            .Append<my_service::HttpClientComponent>();
+                            
 
   service_template::AppendHello(component_list);
   service_template::AppendLogin(component_list);

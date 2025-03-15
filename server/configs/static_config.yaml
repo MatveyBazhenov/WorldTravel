@@ -38,11 +38,15 @@ components_manager:
             load-enabled: $is-testing
             fs-task-processor: fs-task-processor
 
+        aviasales-api:
+            url: $aviasales-url
+
         tests-control:
             load-enabled: $is-testing
             path: /tests/{action}
             method: POST
             task_processor: main-task-processor
+            
         handler-ping:
             path: /ping
             method: GET
@@ -54,6 +58,11 @@ components_manager:
             path: /v1/hello               # Registering handler by URL '/v1/hello'.
             method: POST                  # It will only reply to POST requests.
             task_processor: main-task-processor  # Run it on CPU bound task processor
+
+        http-client-component:
+            path: /http-client
+            method: GET
+            task_processor: main-task-processor
 
         handler-login:
             path: /login
@@ -75,3 +84,4 @@ components_manager:
 
         dns-client:
             fs-task-processor: fs-task-processor
+
