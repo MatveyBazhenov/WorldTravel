@@ -35,12 +35,12 @@ components_manager:
         testsuite-support: {}
 
         http-client:
-            load-enabled: $is-testing
+            # load-enabled: $is-testing
             fs-task-processor: fs-task-processor
 
         aviasales-api:
-            url: $aviasales-url
-
+            url-IATA: $aviasales-url-IATA
+            
         tests-control:
             load-enabled: $is-testing
             path: /tests/{action}

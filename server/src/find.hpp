@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <userver/components/component_context.hpp>
 #include <userver/clients/http/client.hpp>
 #include <userver/clients/http/component.hpp>
@@ -27,7 +28,11 @@ class HttpClientComponent final : public userver::server::handlers::HttpHandlerB
       
   std::string HandleRequestThrow(const userver::server::http::HttpRequest& request,
                                  userver::server::request::RequestContext&) const override {
-  std::string response = aviasales_api_->GetMyIP();
+  const auto& json = userver::formats::json::FromString(request.RequestBody());
+  std::string from = json["origin"].As<std::string>();
+  std::string to = json["destination"].As<std::string>();
+
+  std::string response = aviasales_api_->GetIATACode(from, to);
   return response;
   }
 
