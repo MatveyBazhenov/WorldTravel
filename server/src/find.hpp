@@ -12,6 +12,7 @@
 #include <userver/utils/assert.hpp>
 
 #include "aviasalesAPI.hpp"
+#include "chatgptAPI.hpp"
 
 namespace my_service {
 
@@ -23,7 +24,8 @@ class HttpClientComponent final : public userver::server::handlers::HttpHandlerB
                       const userver::components::ComponentContext& context)
       : HttpHandlerBase(config, context),
       http_client_(&context.FindComponent<userver::components::HttpClient>().GetHttpClient()),
-      aviasales_api_(&context.FindComponent<AviasalesAPI>()) {}
+      aviasales_api_(&context.FindComponent<AviasalesAPI>()),
+      chatgpt_api_(&context.FindComponent<ChatGPTAPI>()) {}
       
       
   std::string HandleRequestThrow(const userver::server::http::HttpRequest& request,
@@ -33,12 +35,30 @@ class HttpClientComponent final : public userver::server::handlers::HttpHandlerB
   std::string to = json["destination"].As<std::string>();
 
   std::string response = aviasales_api_->GetIATACode(from, to);
-  return response;
+  auto iata_json = userver::formats::json::FromString(response);
+
+  std::vector<Attraction> attractions = chatgpt_api_->GetTravelInfo(from, to);
+
+  userver::formats::json::ValueBuilder response_json;
+  response_json["origin"] = iata_json["origin"];
+  response_json["destination"] = iata_json["destination"];
+
+  auto attractions_array = response_json["attractions"].BeginArray();
+  for (const auto& attraction : attractions) {
+      userver::formats::json::ValueBuilder attraction_json;
+      attraction_json["name"] = attraction.name;
+      attraction_json["description"] = attraction.description;
+      attractions_array.PushBack(std::move(attraction_json));
+  }
+    
+    return userver::formats::json::ToString(response_json.ExtractValue());
+
   }
 
  private:
  userver::clients::http::Client* http_client_;
   AviasalesAPI* aviasales_api_;
+  ChatGPTAPI* chatgpt_api_;
 };
 
 }  // namespace my_service
