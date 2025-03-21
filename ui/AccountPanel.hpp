@@ -1,13 +1,14 @@
 #ifndef ACCOUNTPANEL_HPP
 #define ACCOUNTPANEL_HPP
 
-#include "LeftPanel.hpp"
 #include <wx/button.h>
-#include "FindPanel.hpp"
 #include <wx/intl.h>
 #include <wx/notebook.h>
 #include <wx/panel.h>
 #include <wx/wx.h>
+#include "FindPanel.hpp"
+#include "LeftPanel.hpp"
+#include "UserData.hpp"
 
 const int ID_DRIVE1 = wxID_HIGHEST + 19;
 const int ID_DRIVE2 = wxID_HIGHEST + 20;
@@ -18,23 +19,23 @@ const int ID_EXIT = wxID_HIGHEST + 24;
 
 class AccountPanel : public wxPanel {
 public:
-  AccountPanel(wxNotebook *parent);
-  ~AccountPanel();
+    AccountPanel(wxNotebook *parent);
+    ~AccountPanel();
+    void RefreshDrives();
 
 private:
-  wxButton *btnDrive1;
-  wxButton *btnDrive2;
-  wxButton *btnDrive3;
-  wxButton *btnBack;
-  wxButton *btnName;
-  wxButton *btnExit;
-  wxBoxSizer *mainSizer5;
-  wxBoxSizer *topSizer5;
-  wxGridSizer *centerSizer5;
-  wxBoxSizer *bottomSizer5;
+    wxButton *btnBack;
+    wxButton *btnName;
+    wxButton *btnExit;
+    wxBoxSizer *mainSizer5;
+    wxBoxSizer *topSizer5;
+    wxFlexGridSizer *centerSizer5;
+    wxBoxSizer *bottomSizer5;
 
-  void OnExit(wxCommandEvent &event);
-  void OnBack(wxCommandEvent &event);
+    void OnExit(wxCommandEvent &event);
+    void OnBack(wxCommandEvent &event);
+    std::vector<wxButton *> driveButtons;
+    void UpdateDriveButtons();
 };
 
 #endif
