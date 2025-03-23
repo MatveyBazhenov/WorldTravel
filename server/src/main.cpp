@@ -26,8 +26,8 @@ int main(int argc, char* argv[]) {
                             .Append<userver::server::handlers::TestsControl>()
                             .Append<userver::components::Postgres>("postgres-db-1")
                             .Append<userver::clients::dns::Component>()
-                            .Append<AviasalesAPI>(),
-                            .Append<ChatGPTAPI>(),
+                            .Append<AviasalesAPI>()
+                            .Append<ChatGPTAPI>()
                             .Append<my_service::HttpClientComponent>();
                             
 
