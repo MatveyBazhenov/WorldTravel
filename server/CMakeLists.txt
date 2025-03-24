@@ -35,6 +35,7 @@ target_link_libraries(${PROJECT_NAME}_registration PUBLIC userver::postgresql)
 add_library(${PROJECT_NAME}_http_client OBJECT
     src/find.hpp
     src/aviasalesAPI.hpp
+    src/chatgptAPI.hpp
 )
 target_link_libraries(${PROJECT_NAME}_http_client PUBLIC userver::core)
 

@@ -47,10 +47,10 @@ components_manager:
             url-IATA: $aviasales-url-IATA
             url-aviasales: $aviasales-url-main
 
-        # chatgpt_api:
-        #     chatgpt_url: "https://api.openai.com/v1/chat/completions"
-        #     chatgpt_api_key: "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"
-
+        chatgpt-api:
+            url-chatgpt: $chatgpt-url
+            key-chatgpt: $chatgpt-key
+        
         tests-control:
             load-enabled: $is-testing
             path: /tests/{action}

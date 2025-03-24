@@ -8,11 +8,3 @@ CREATE TABLE IF NOT EXISTS WorldTravel.users (
     user_key TEXT NOT NULL,
     count INTEGER DEFAULT(1)
 );
-
-
-CREATE TABLE IF NOT EXISTS WorldTravel.attractions (
-    id SERIAL PRIMARY KEY,
-    city TEXT NOT NULL,
-    name TEXT NOT NULL,
-    description TEXT NOT NULL
-);

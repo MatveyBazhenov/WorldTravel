@@ -13,6 +13,7 @@
 
 #include "aviasalesAPI.hpp"
 #include "chatgptAPI.hpp"
+#include "userver/formats/json/value_builder.hpp"
 
 namespace my_service {
 
@@ -37,22 +38,20 @@ class HttpClientComponent final : public userver::server::handlers::HttpHandlerB
   std::string response = aviasales_api_->GetIATACode(from, to);
   auto iata_json = userver::formats::json::FromString(response);
 
-  std::vector<Attraction> attractions = chatgpt_api_->GetTravelInfo(from, to);
+  std::vector<Attraction> attractions = chatgpt_api_->GetTravelInfo(to);
 
   userver::formats::json::ValueBuilder response_json;
   response_json["origin"] = iata_json["origin"];
   response_json["destination"] = iata_json["destination"];
 
-  auto attractions_array = response_json["attractions"].BeginArray();
+  userver::formats::json::ValueBuilder attractions_array = response_json["attraction"];
   for (const auto& attraction : attractions) {
       userver::formats::json::ValueBuilder attraction_json;
       attraction_json["name"] = attraction.name;
       attraction_json["description"] = attraction.description;
       attractions_array.PushBack(std::move(attraction_json));
-  }
-    
-    return userver::formats::json::ToString(response_json.ExtractValue());
-
+  } 
+  return userver::formats::json::ToString(response_json.ExtractValue());
   }
 
  private:
