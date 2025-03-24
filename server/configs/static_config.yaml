@@ -38,13 +38,18 @@ components_manager:
             # load-enabled: $is-testing
             fs-task-processor: fs-task-processor
 
+        default-secdist-provider:                        # Component that loads configuration of hosts and passwords
+            config: /etc/WorldTravel/secrets.json        # Values are supposed to be stored in this file
+            missing-ok: true                             # ... but if the file is missing it is still ok
+            environment-secrets-key: SECDIST_CONFIG      # ... values will be loaded from this environment value
+
         aviasales-api:
             url-IATA: $aviasales-url-IATA
             url-aviasales: $aviasales-url-main
 
-        chatgpt_api:
-            chatgpt_url: "https://api.openai.com/v1/chat/completions"
-            chatgpt_api_key: "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"
+        # chatgpt_api:
+        #     chatgpt_url: "https://api.openai.com/v1/chat/completions"
+        #     chatgpt_api_key: "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"
 
         tests-control:
             load-enabled: $is-testing

@@ -16,6 +16,7 @@
 #include "userver/components/component_context.hpp"
 #include "userver/formats/json/value.hpp"
 #include "userver/formats/json/value_builder.hpp"
+#include "userver/storages/secdist/component.hpp"
 #include "userver/yaml_config/merge_schemas.hpp"
 
 class AviasalesAPI final : public userver::components::LoggableComponentBase {
@@ -29,6 +30,8 @@ class AviasalesAPI final : public userver::components::LoggableComponentBase {
                           .GetHttpClient()) {
     url_IATA_ = config["url-IATA"].As<std::string>();
     url_aviasales_ = config["url-aviasales"].As<std::string>();
+    auto& secdist = context.FindComponent<userver::components::Secdist>().Get();
+    secrets_ = secdist.Get<userver::formats::json::Value>();
   }
 
   static userver::yaml_config::Schema GetStaticConfigSchema() {
@@ -53,7 +56,8 @@ class AviasalesAPI final : public userver::components::LoggableComponentBase {
                         .get(url)
                         .timeout(std::chrono::seconds(5))
                         .perform();
-    const auto& json = userver::formats::json::FromString(response->body());
+    const userver::formats::json::Value& json =
+        userver::formats::json::FromString(response->body());
 
     userver::formats::json::ValueBuilder IATA_codes;
     IATA_codes["origin"] = json["origin"]["iata"];
@@ -61,7 +65,7 @@ class AviasalesAPI final : public userver::components::LoggableComponentBase {
     return userver::formats::json::ToString(IATA_codes.ExtractValue());
   }
 
-  std::string GetTickets(userver::formats::json::Value json) {
+  userver::formats::json::Value GetTickets(userver::formats::json::Value json) {
     std::string cities_IATA_codes =
         this->GetIATACode(json["origin"].As<std::string>(),
                           json["destination"].As<std::string>());
@@ -74,18 +78,19 @@ class AviasalesAPI final : public userver::components::LoggableComponentBase {
         url_aviasales_ +
         fmt::format(
             R"(origin={}&destination={}&departure_at={}&unique=false&sorting=price&direct=false&currency=rub&limit=5&page=1&one_way=true&token={})",
-            origin, destination, departure_at, api_token_);
+            origin, destination, departure_at,
+            secrets_["aviasales_token"].As<std::string>());
     auto response = http_client_->CreateRequest()
                         .get(url)
                         .timeout(std::chrono::seconds(5))
                         .perform();
     // TODO int price = json["price"].As<int>();
-    return response->body();
+    return userver::formats::json::FromString(response->body());
   }
 
  private:
   userver::clients::http::Client* http_client_;
   std::string url_IATA_;
   std::string url_aviasales_;
-  const std::string api_token_ = "secret-token";
+  userver::formats::json::Value secrets_;
 };

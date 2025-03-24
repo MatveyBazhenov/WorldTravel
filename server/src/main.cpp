@@ -16,6 +16,8 @@
 #include "registration.hpp"
 #include "find.hpp"
 #include "aviasalesAPI.hpp"
+#include "userver/storages/secdist/component.hpp"
+#include "userver/storages/secdist/provider_component.hpp"
 #include "chatgptAPI.hpp"
 
 int main(int argc, char* argv[]) {
@@ -28,6 +30,8 @@ int main(int argc, char* argv[]) {
                             .Append<userver::clients::dns::Component>()
                             .Append<AviasalesAPI>()
                             .Append<ChatGPTAPI>()
+                            .Append<userver::components::DefaultSecdistProvider>()
+                            .Append<userver::components::Secdist>()
                             .Append<my_service::HttpClientComponent>();
                             
 
