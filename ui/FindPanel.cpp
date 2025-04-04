@@ -1,4 +1,6 @@
 #include "FindPanel.hpp"
+#include "AccountPanel.hpp"
+#include "ResultPanel.hpp"
 
 FindPanel::FindPanel(wxNotebook *parent) : wxPanel(parent, wxID_ANY) {
     wxLocale locale;

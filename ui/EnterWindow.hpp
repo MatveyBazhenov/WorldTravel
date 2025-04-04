@@ -11,7 +11,6 @@
 #include <wx/sstream.h>
 #include <wx/utils.h>
 #include <wx/wx.h>
-#include <thread>
 
 wxDECLARE_EVENT(MY_THREAD_EVENT, wxThreadEvent);
 

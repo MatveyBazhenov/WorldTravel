@@ -6,8 +6,6 @@
 #include <wx/notebook.h>
 #include <wx/panel.h>
 #include <wx/wx.h>
-#include "FindPanel.hpp"
-#include "UserData.hpp"
 
 const int ID_DESCRIBTION = wxID_HIGHEST + 1;
 const int ID_BACK2 = wxID_HIGHEST + 2;

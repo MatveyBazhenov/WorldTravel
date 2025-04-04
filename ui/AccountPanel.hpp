@@ -6,9 +6,7 @@
 #include <wx/notebook.h>
 #include <wx/panel.h>
 #include <wx/wx.h>
-#include "FindPanel.hpp"
-#include "LeftPanel.hpp"
-#include "UserData.hpp"
+#include <vector>
 
 const int ID_DRIVE1 = wxID_HIGHEST + 19;
 const int ID_DRIVE2 = wxID_HIGHEST + 20;

@@ -5,8 +5,6 @@
 #include <wx/notebook.h>
 #include <wx/panel.h>
 #include <wx/wx.h>
-#include "EnterWindow.hpp"
-#include "RegistrationWindow.hpp"
 
 const int ID_IN = wxID_HIGHEST + 12;
 const int ID_REG = wxID_HIGHEST + 13;

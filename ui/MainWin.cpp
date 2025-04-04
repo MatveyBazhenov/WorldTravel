@@ -1,4 +1,5 @@
 #include "MainWin.hpp"
+#include "FindPanel.hpp"
 
 wxBEGIN_EVENT_TABLE(MainWin, wxFrame)
     EVT_NOTEBOOK_PAGE_CHANGED(wxID_ANY, MainWin::OnPageChanged)

@@ -7,10 +7,8 @@
 #include <wx/notebook.h>
 #include <wx/panel.h>
 #include <wx/sizer.h>
-#include "FindPanel.hpp"
 #include "LeftPanel.hpp"
-#include "UserData.hpp"
-
+#include "AccountPanel.hpp"
 class MainWin : public wxFrame {
 public:
     MainWin();

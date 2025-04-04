@@ -1,4 +1,6 @@
 #include "ResultPanel.hpp"
+#include "FindPanel.hpp"
+#include "UserData.hpp"
 
 ResultPanel::ResultPanel(wxNotebook *parent) : wxPanel(parent, wxID_ANY) {
     wxLocale locale;

@@ -45,43 +45,57 @@ void EnterWindow::OnEnter(wxCommandEvent &event) {
         return;
     }
 
-    std::thread([this, login, password]() {
-        wxHTTP http;
-        http.SetHeader("Content-Type", "application/json");
+    wxHTTP http;
+    http.SetTimeout(10);
 
-        if (!http.Connect("localhost", 8080)) {
-            auto evt = new wxThreadEvent();
-            evt->SetString("Не удалось подключиться к серверу");
-            evt->SetInt(-1);
-            wxQueueEvent(this, evt);
-            return;
+    try {
+        if (http.Connect("localhost", 8080)) {
+            http.SetMethod("POST");
+            http.SetHeader("Content-Type", "application/json");
+
+            wxString jsonBody = wxString::Format(
+                    R"({"login": "%s", "password": "%s"})", login, password
+            );
+
+            if (!http.SetPostText("application/json", jsonBody)) {
+                throw std::runtime_error("Failed to set POST data");
+            }
+
+            wxInputStream* stream = http.GetInputStream("/login");
+            int responseCode = http.GetResponse();
+
+            wxString response;
+            if (stream && stream->IsOk()) {
+                wxStringOutputStream output(&response);
+                stream->Read(output);
+                delete stream;
+
+                wxLogDebug("Response code: %d", responseCode);
+
+                if (responseCode == 200) {
+                    wxMessageBox("Успешный вход!", "Успех", wxOK | wxICON_INFORMATION);
+                } else {
+                    wxMessageBox(
+                            wxString::Format("Ошибка %d: %s", responseCode, response),
+                            "Ошибка", wxOK | wxICON_ERROR
+                    );
+                }
+            } else {
+                throw std::runtime_error("Failed to receive response stream.");
+            }
+        } else {
+            throw std::runtime_error("Не удалось подключиться к серверу");
         }
+    } catch (const std::exception &e) {
+        wxMessageBox(e.what(), "Ошибка", wxOK | wxICON_ERROR);
+    } catch (...) {
+        wxMessageBox("Неизвестная ошибка", "Ошибка", wxOK | wxICON_ERROR);
+    }
 
-        http.SetMethod("POST");
-
-        wxString postData = wxString::Format(
-            "{\"login\":\"%s\", \"password\":\"%s\"}", login, password
-        );
-        http.SetPostText(postData, "application/json");
-
-        wxInputStream *inputStream = http.GetInputStream("/login");
-        int status = http.GetResponse();
-
-        wxString response;
-        if (inputStream && inputStream->IsOk()) {
-            wxStringOutputStream output;
-            inputStream->Read(output);
-            response = output.GetString();
-        }
-
-        auto evt = new wxThreadEvent();
-        evt->SetInt(status);
-        evt->SetString(response);
-        wxQueueEvent(this, evt);
-
-        http.Close();
-    }).detach();
+    http.Close();
 }
+
+
 
 void EnterWindow::OnThreadEvent(wxThreadEvent &event) {
     int status = event.GetInt();

@@ -1,4 +1,7 @@
 #include "AccountPanel.hpp"
+#include "LeftPanel.hpp"
+#include "FindPanel.hpp"
+#include "UserData.hpp"
 
 AccountPanel::AccountPanel(wxNotebook *parent) : wxPanel(parent, wxID_ANY) {
     wxLocale locale;

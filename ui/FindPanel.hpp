@@ -8,8 +8,6 @@
 #include <wx/spinctrl.h>
 #include <wx/textctrl.h>
 #include <wx/wx.h>
-#include "AccountPanel.hpp"
-#include "ResultPanel.hpp"
 
 const int ID_FIND = wxID_HIGHEST + 20;
 const int ID_ACCOUNT = wxID_HIGHEST + 21;

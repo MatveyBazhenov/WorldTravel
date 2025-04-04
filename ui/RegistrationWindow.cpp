@@ -37,7 +37,6 @@ RegistrationWindow::RegistrationWindow(wxWindow *parent)
 
 void RegistrationWindow::OnRegisterButtonClicked(wxCommandEvent &event) {
     wxString login = txtLogin->GetValue();
-    wxLogDebug("Button clicked! Login: %s", login);
     wxString password = txtPassword->GetValue();
 
     if (login.empty() || password.empty()) {
@@ -46,7 +45,7 @@ void RegistrationWindow::OnRegisterButtonClicked(wxCommandEvent &event) {
     }
 
     wxString jsonBody = wxString::Format(
-        R"({"username": "%s", "password": "%s"})", login, password
+            R"({"username": "%s", "password": "%s"})", login, password
     );
 
     wxHTTP http;
@@ -61,25 +60,30 @@ void RegistrationWindow::OnRegisterButtonClicked(wxCommandEvent &event) {
                 throw std::runtime_error("Failed to set POST data");
             }
 
-            const int responseCode = http.GetResponse();
-            wxString response;
-            wxInputStream *stream = http.GetInputStream("/api/register");
+            wxInputStream* stream = http.GetInputStream("/registration");
             if (stream && stream->IsOk()) {
+                wxString response;
                 wxStringOutputStream output(&response);
                 stream->Read(output);
                 delete stream;
-            }
 
-            if (responseCode == 201) {
-                wxMessageBox(
-                    "Регистрация успешна!\nВаш ключ: " + response, "Успех",
-                    wxOK | wxICON_INFORMATION
-                );
+                int responseCode = http.GetResponse();
+
+                wxLogDebug("Response code: %d", responseCode);
+
+                if (responseCode == 200) {
+                    wxMessageBox(
+                            "Регистрация успешна!\nВаш ключ: " + response, "Успех",
+                            wxOK | wxICON_INFORMATION
+                    );
+                } else {
+                    wxMessageBox(
+                            wxString::Format("Ошибка %d: %s", responseCode, response),
+                            "Ошибка", wxOK | wxICON_ERROR
+                    );
+                }
             } else {
-                wxMessageBox(
-                    wxString::Format("Ошибка %d: %s", responseCode, response),
-                    "Ошибка", wxOK | wxICON_ERROR
-                );
+                throw std::runtime_error("Failed to receive response stream.");
             }
         } else {
             throw std::runtime_error("Не удалось подключиться к серверу");
@@ -92,6 +96,9 @@ void RegistrationWindow::OnRegisterButtonClicked(wxCommandEvent &event) {
 
     http.Close();
 }
+
+
+
 wxBEGIN_EVENT_TABLE(RegistrationWindow, wxFrame)
     EVT_BUTTON(ID_REG2, RegistrationWindow::OnRegisterButtonClicked)
         wxEND_EVENT_TABLE()

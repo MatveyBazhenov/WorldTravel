@@ -1,4 +1,6 @@
 #include "LeftPanel.hpp"
+#include "RegistrationWindow.hpp"
+#include "EnterWindow.hpp"
 
 LeftPanel::LeftPanel(wxNotebook *parent)
     : wxPanel(
