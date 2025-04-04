@@ -6,7 +6,6 @@ wxBEGIN_EVENT_TABLE(MainWin, wxFrame)
 
             MainWin::MainWin()
     : wxFrame(NULL, wxID_ANY, "WorldTravel") {
-    SetIcon(wxIcon(wxT("ic"), wxBITMAP_TYPE_ICO));
     wxLocale locale;
     locale.Init(wxLANGUAGE_RUSSIAN);
     notebook = new wxNotebook(this, wxID_ANY);

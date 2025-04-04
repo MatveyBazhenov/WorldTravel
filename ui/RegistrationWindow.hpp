@@ -5,9 +5,9 @@
 #include <wx/intl.h>
 #include <wx/notebook.h>
 #include <wx/panel.h>
-#include <wx/wx.h>
-#include <wx/net/http.h>
+#include <wx/protocol/http.h>
 #include <wx/sstream.h>
+#include <wx/wx.h>
 
 const int ID_LOGIN = wxID_HIGHEST + 9;
 const int ID_PASSWORD = wxID_HIGHEST + 10;

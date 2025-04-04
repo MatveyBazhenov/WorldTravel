@@ -1,9 +1,5 @@
 #include "RegistrationWindow.hpp"
 
-wxBEGIN_EVENT_TABLE(RegistrationWindow, wxFrame)
-    EVT_BUTTON(ID_REG2, RegistrationWindow::OnRegisterButtonClicked)
-wxEND_EVENT_TABLE()
-
 RegistrationWindow::RegistrationWindow(wxWindow *parent)
     : wxFrame(
           parent,
@@ -39,47 +35,63 @@ RegistrationWindow::RegistrationWindow(wxWindow *parent)
     this->Fit();
 }
 
-void RegistrationWindow::OnRegisterButtonClicked(wxCommandEvent& event) {
+void RegistrationWindow::OnRegisterButtonClicked(wxCommandEvent &event) {
     wxString login = txtLogin->GetValue();
+    wxLogDebug("Button clicked! Login: %s", login);
     wxString password = txtPassword->GetValue();
 
-    // делаем json
-    wxString jsonBody = wxString::Format(
-        R"({"username": "%s", "password": "%s"})",
-        login, password
-    );
-
-    // отправляем на сервер запрос
-    wxHTTP http;
-    http.SetHeader("Content-Type", "application/json");
-    http.SetTimeout(10);
-
-    const wxString url = "http://localhost:8080/api/register";
-    wxInputStream* stream = nullptr;
-    
-    try {
-        if (http.Connect("localhost", 8080)) {
-            stream = http.PostRequest("/api/register", jsonBody.ToUTF8());
-        }
-
-        // смотрим ответ
-        const int responseCode = http.GetResponseCode();
-        wxString response;
-        
-        if (stream) {
-            wxStringOutputStream out(&response);
-            stream->Read(out);
-        }
-
-        if (responseCode == 201) {
-            wxMessageBox("Регистрация успешна!\nВаш ключ: " + response, "Успех", wxOK | wxICON_INFORMATION);
-        } else {
-            wxMessageBox("Ошибка: " + response, "Ошибка", wxOK | wxICON_ERROR);
-        }
-    } catch (...) {
-        wxMessageBox("Ошибка подключения к серверу", "Ошибка", wxOK | wxICON_ERROR);
+    if (login.empty() || password.empty()) {
+        wxMessageBox("Заполните все поля!", "Ошибка", wxOK | wxICON_ERROR);
+        return;
     }
 
-    if (stream) delete stream;
+    wxString jsonBody = wxString::Format(
+        R"({"username": "%s", "password": "%s"})", login, password
+    );
+
+    wxHTTP http;
+    http.SetTimeout(10);
+
+    try {
+        if (http.Connect("localhost", 8080)) {
+            http.SetMethod("POST");
+            http.SetHeader("Content-Type", "application/json");
+
+            if (!http.SetPostText("application/json", jsonBody)) {
+                throw std::runtime_error("Failed to set POST data");
+            }
+
+            const int responseCode = http.GetResponse();
+            wxString response;
+            wxInputStream *stream = http.GetInputStream("/api/register");
+            if (stream && stream->IsOk()) {
+                wxStringOutputStream output(&response);
+                stream->Read(output);
+                delete stream;
+            }
+
+            if (responseCode == 201) {
+                wxMessageBox(
+                    "Регистрация успешна!\nВаш ключ: " + response, "Успех",
+                    wxOK | wxICON_INFORMATION
+                );
+            } else {
+                wxMessageBox(
+                    wxString::Format("Ошибка %d: %s", responseCode, response),
+                    "Ошибка", wxOK | wxICON_ERROR
+                );
+            }
+        } else {
+            throw std::runtime_error("Не удалось подключиться к серверу");
+        }
+    } catch (const std::exception &e) {
+        wxMessageBox(e.what(), "Ошибка", wxOK | wxICON_ERROR);
+    } catch (...) {
+        wxMessageBox("Неизвестная ошибка", "Ошибка", wxOK | wxICON_ERROR);
+    }
+
     http.Close();
 }
+wxBEGIN_EVENT_TABLE(RegistrationWindow, wxFrame)
+    EVT_BUTTON(ID_REG2, RegistrationWindow::OnRegisterButtonClicked)
+        wxEND_EVENT_TABLE()

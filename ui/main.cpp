@@ -1,5 +1,6 @@
 #include <wx/filename.h>
 #include <wx/icon.h>
+#include <wx/socket.h>
 #include <wx/wx.h>
 #include "AccountPanel.hpp"
 #include "FindPanel.hpp"
@@ -16,6 +17,7 @@ public:
 wxIMPLEMENT_APP(MyApp);
 
 bool MyApp::OnInit() {
+    wxSocketBase::Initialize();
     MainWin *mainWin = new MainWin();
     mainWin->Show(true);
     return true;
