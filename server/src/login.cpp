@@ -52,13 +52,14 @@ class LoginHandler final : public userver::server::handlers::HttpHandlerBase {
       return LoginResponse(login, LoginStatus::kNotFound);
   }
   
-  auto stored_password = result.AsSingleRow<std::string>();
+  auto row = result.Front();
+  auto stored_password = row["password"].As<std::string>();
+  auto user_key = row["user_key"].As<std::string>();
   if (stored_password != password) {
       request.SetResponseStatus(userver::server::http::HttpStatus::kUnauthorized);
       return LoginResponse(login, LoginStatus::kWrongPassword);
   }
-  
-  return LoginResponse(login, LoginStatus::kSuccess);
+  return LoginResponse(user_key, LoginStatus::kSuccess);
 }
 
 userver::storages::postgres::ClusterPtr postgres_;
@@ -66,14 +67,16 @@ userver::storages::postgres::ClusterPtr postgres_;
 
 }  // namespace
 
-std::string LoginResponse(std::string_view login, LoginStatus status) {
+std::string LoginResponse(std::string_view user_key, LoginStatus status) {
 switch (status) {
   case LoginStatus::kSuccess:
-      return fmt::format("Welcome, {}\n", login);
+      return fmt::format(R"({{"status": "ok", "user_key":"{}"}})", user_key);
   case LoginStatus::kWrongPassword:
-      return "Incorrect password\n";
+      return R"({"status": "error", "message": "Incorrect password."})"
+             "\n";
   case LoginStatus::kNotFound:
-      return "Unknown user\n";
+      return R"({"status": "error", "message": "Unknown user."})"
+             "\n";
   case LoginStatus::kInvalid:
       return R"({"status": "error", "message": "Invalid username or password. Must be non-empty and up to 50 characters"})"
              "\n";

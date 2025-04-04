@@ -7,3 +7,9 @@ is-testing: false
 server-port: 8080
 
 dbconnection: 'postgresql://service_template_user:password@localhost:5432/service_template_db_1'
+
+aviasales-url-IATA: 'https://www.travelpayouts.com/widgets_suggest_params?q='
+aviasales-url-main: 'https://api.travelpayouts.com/aviasales/v3/prices_for_dates?'
+
+chatgpt-url: 'https://api.openai.com/v1/chat/completions'
+chatgpt-key: 'my_key'

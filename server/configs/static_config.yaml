@@ -35,14 +35,28 @@ components_manager:
         testsuite-support: {}
 
         http-client:
-            load-enabled: $is-testing
+            # load-enabled: $is-testing
             fs-task-processor: fs-task-processor
 
+        default-secdist-provider:                        # Component that loads configuration of hosts and passwords
+            config: /etc/WorldTravel/secrets.json        # Values are supposed to be stored in this file
+            missing-ok: true                             # ... but if the file is missing it is still ok
+            environment-secrets-key: SECDIST_CONFIG      # ... values will be loaded from this environment value
+
+        aviasales-api:
+            url-IATA: $aviasales-url-IATA
+            url-aviasales: $aviasales-url-main
+
+        chatgpt-api:
+            url-chatgpt: $chatgpt-url
+            key-chatgpt: $chatgpt-key
+        
         tests-control:
             load-enabled: $is-testing
             path: /tests/{action}
             method: POST
             task_processor: main-task-processor
+            
         handler-ping:
             path: /ping
             method: GET
@@ -54,6 +68,11 @@ components_manager:
             path: /v1/hello               # Registering handler by URL '/v1/hello'.
             method: POST                  # It will only reply to POST requests.
             task_processor: main-task-processor  # Run it on CPU bound task processor
+
+        http-client-component:
+            path: /http-client
+            method: GET
+            task_processor: main-task-processor
 
         handler-login:
             path: /login
@@ -75,3 +94,4 @@ components_manager:
 
         dns-client:
             fs-task-processor: fs-task-processor
+
