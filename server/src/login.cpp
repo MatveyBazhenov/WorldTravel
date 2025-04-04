@@ -27,40 +27,45 @@ class LoginHandler final : public userver::server::handlers::HttpHandlerBase {
       : HttpHandlerBase(config, component_context), 
       postgres_(component_context.FindComponent<userver::components::Postgres>("postgres-db-1").GetCluster()) {}
 
-  std::string HandleRequestThrow(
-      const userver::server::http::HttpRequest& request,
-      userver::server::request::RequestContext&) const override {
-
-    const auto& json = userver::formats::json::FromString(request.RequestBody());
-    auto login = json["login"].As<std::string>();
-    auto password = json["password"].As<std::string>();
-
-    if (login.empty() || login.size() >= 50 || password.empty() ||
-        password.size() > 50) {
-      request.SetResponseStatus(userver::server::http::HttpStatus::kBadRequest);
-      return LoginResponse(login, LoginStatus::kInvalid);
+      std::string HandleRequestThrow(
+        const userver::server::http::HttpRequest& request,
+        userver::server::request::RequestContext&) const override {
+      const auto& json = userver::formats::json::FromString(request.RequestBody());
+      auto login = json["login"].As<std::string>();
+      auto password = json["password"].As<std::string>();
+    
+      if (login.empty() || login.size() >= 50 || password.empty() ||
+          password.size() > 50) {
+        request.SetResponseStatus(userver::server::http::HttpStatus::kBadRequest);
+        return LoginResponse(login, LoginStatus::kInvalid);
+      }
+    
+      constexpr const char* kCheckUserQuery = R"(
+        SELECT password, user_key FROM WorldTravel.users WHERE username = $1
+      )";
+    
+      auto result = postgres_->Execute(
+          userver::storages::postgres::ClusterHostType::kMaster,
+          kCheckUserQuery,
+          login
+      );
+    
+      if (result.IsEmpty()) {
+        request.SetResponseStatus(userver::server::http::HttpStatus::kNotFound);
+        return LoginResponse(login, LoginStatus::kNotFound);
+      }
+    
+      auto row = result.Front();
+      auto stored_password = row["password"].As<std::string>();
+      auto user_key = row["user_key"].As<std::string>();
+    
+      if (stored_password != password) {
+        request.SetResponseStatus(userver::server::http::HttpStatus::kUnauthorized);
+        return LoginResponse(login, LoginStatus::kWrongPassword);
+      }
+    
+      return LoginResponse(user_key, LoginStatus::kSuccess);
     }
-
-    constexpr const char* kCheckUserQuery = R"(
-      SELECT password FROM WorldTravel.users WHERE username = $1
-  )";
-
-  auto result = postgres_->Execute(userver::storages::postgres::ClusterHostType::kMaster, kCheckUserQuery, login);
-  
-  if (result.IsEmpty()) {
-      request.SetResponseStatus(userver::server::http::HttpStatus::kNotFound);
-      return LoginResponse(login, LoginStatus::kNotFound);
-  }
-  
-  auto row = result.Front();
-  auto stored_password = row["password"].As<std::string>();
-  auto user_key = row["user_key"].As<std::string>();
-  if (stored_password != password) {
-      request.SetResponseStatus(userver::server::http::HttpStatus::kUnauthorized);
-      return LoginResponse(login, LoginStatus::kWrongPassword);
-  }
-  return LoginResponse(user_key, LoginStatus::kSuccess);
-}
 
 userver::storages::postgres::ClusterPtr postgres_;
 };
