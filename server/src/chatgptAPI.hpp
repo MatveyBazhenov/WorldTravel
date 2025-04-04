@@ -50,7 +50,8 @@ public:
             )");
     }
 
-    std::vector<Attraction> GetTravelInfo(const std::string& to) {
+    std::vector<Attraction> GetTravelInfo(userver::formats::json::Value json) {
+        std::string to = json["origin"].As<std::string>();
         std::vector<Attraction> attractions;
 
         userver::formats::json::ValueBuilder request_body;
