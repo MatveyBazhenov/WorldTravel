@@ -8,6 +8,7 @@
 #include <wx/protocol/http.h>
 #include <wx/sstream.h>
 #include <wx/wx.h>
+#include <nlohmann/json.hpp>
 
 const int ID_LOGIN = wxID_HIGHEST + 9;
 const int ID_PASSWORD = wxID_HIGHEST + 10;
@@ -24,6 +25,7 @@ private:
     wxButton *btnReg;
     wxBoxSizer *mainSizer2;
     wxGridSizer *centerSizer2;
+    wxLocale _locale;
 
     wxDECLARE_EVENT_TABLE();
 };

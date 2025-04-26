@@ -8,8 +8,7 @@ RegistrationWindow::RegistrationWindow(wxWindow *parent)
           wxDefaultPosition,
           wxDefaultSize
       ) {
-    wxLocale locale;
-    locale.Init(wxLANGUAGE_RUSSIAN);
+    _locale.Init(wxLANGUAGE_RUSSIAN);
 
     wxBoxSizer *mainSizer2 = new wxBoxSizer(wxVERTICAL);
     wxGridSizer *centerSizer2 = new wxGridSizer(3, 1, 10, 10);
@@ -22,7 +21,7 @@ RegistrationWindow::RegistrationWindow(wxWindow *parent)
     txtPassword->SetHint("Пароль");
     txtPassword->SetMinSize(wxSize(200, 100));
 
-    btnReg = new wxButton(this, ID_REG2, "Зарегестрироваться");
+    btnReg = new wxButton(this, ID_REG2, "Зарегистрироваться");
     btnReg->SetMinSize(wxSize(200, 100));
 
     centerSizer2->Add(txtLogin, 0, wxALIGN_CENTER | wxALL, 5);
@@ -34,6 +33,7 @@ RegistrationWindow::RegistrationWindow(wxWindow *parent)
     Center();
     this->Fit();
 }
+
 
 void RegistrationWindow::OnRegisterButtonClicked(wxCommandEvent &event) {
     wxString login = txtLogin->GetValue();
@@ -60,30 +60,46 @@ void RegistrationWindow::OnRegisterButtonClicked(wxCommandEvent &event) {
                 throw std::runtime_error("Failed to set POST data");
             }
 
+            wxString response;
             wxInputStream* stream = http.GetInputStream("/registration");
-            if (stream && stream->IsOk()) {
-                wxString response;
+            if(stream){
                 wxStringOutputStream output(&response);
                 stream->Read(output);
                 delete stream;
+            }
 
-                int responseCode = http.GetResponse();
-
-                wxLogDebug("Response code: %d", responseCode);
-
-                if (responseCode == 200) {
-                    wxMessageBox(
-                            "Регистрация успешна!\nВаш ключ: " + response, "Успех",
-                            wxOK | wxICON_INFORMATION
-                    );
-                } else {
-                    wxMessageBox(
-                            wxString::Format("Ошибка %d: %s", responseCode, response),
-                            "Ошибка", wxOK | wxICON_ERROR
-                    );
+            int responseCode = http.GetResponse();
+            wxLogDebug("Response code: %d", responseCode);
+            
+            switch (responseCode) {
+                case 200:{ //Success
+                    nlohmann::json response_json = nlohmann::json::parse(response.ToStdString());
+                    if(response_json["status"].get<std::string>() == "ok"){
+                        wxMessageBox(
+                                "Регистрация успешна!\nВаш ключ: " + response_json["user_key"].get<std::string>() , "Успех",
+                                wxOK | wxICON_INFORMATION
+                        );
+                    }
+                    break;
                 }
-            } else {
-                throw std::runtime_error("Failed to receive response stream.");
+                case 400:{ //Bad Request
+                    wxMessageBox( 
+                            "Ошибка: Неверное имя пользователя или пароль! Поля должны быть непустыми и содержать до 50 символов!",
+                            "Ошибка",wxOK | wxICON_ERROR
+                    );
+                    break;
+                }
+                case 409:{ //Conflict
+                    wxMessageBox(
+                            R"(Ошибка: Пользоваетль с именем ")" + login + R"(" уже существует!)" ,
+                            "Ошибка",wxOK | wxICON_ERROR
+                    );
+                    break;
+                }
+                default:{
+                    throw std::runtime_error("Не получилось получить ответ от сервера =(");
+                    break;
+                }
             }
         } else {
             throw std::runtime_error("Не удалось подключиться к серверу");
