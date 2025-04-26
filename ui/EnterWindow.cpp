@@ -6,8 +6,7 @@ wxBEGIN_EVENT_TABLE(EnterWindow, wxFrame)
 
 EnterWindow::EnterWindow(wxWindow *parent)
     : wxFrame(parent, wxID_ANY, "Вход", wxDefaultPosition, wxDefaultSize) {
-    wxLocale locale;
-    locale.Init(wxLANGUAGE_RUSSIAN);
+    _locale.Init(wxLANGUAGE_RUSSIAN);
     sizer = new wxBoxSizer(wxVERTICAL);
     centsizer = new wxGridSizer(3, 1, 10, 10);
 
@@ -41,7 +40,7 @@ void EnterWindow::OnEnter(wxCommandEvent &event) {
     wxString password = txtPassword->GetValue();
 
     if (login.empty() || password.empty()) {
-        ShowError("Логин и пароль не могут быть пустыми!");
+        wxMessageBox("Заполните все поля!", "Ошибка", wxOK | wxICON_ERROR);
         return;
     }
 
@@ -61,27 +60,48 @@ void EnterWindow::OnEnter(wxCommandEvent &event) {
                 throw std::runtime_error("Failed to set POST data");
             }
 
-            wxInputStream* stream = http.GetInputStream("/login");
-            int responseCode = http.GetResponse();
-
             wxString response;
-            if (stream && stream->IsOk()) {
+            wxInputStream* stream = http.GetInputStream("/login");
+            if(stream){
                 wxStringOutputStream output(&response);
                 stream->Read(output);
                 delete stream;
+            }
 
-                wxLogDebug("Response code: %d", responseCode);
+            int responseCode = http.GetResponse();
+            wxLogDebug("Response code: %d", responseCode);
 
-                if (responseCode == 200) {
-                    wxMessageBox("Успешный вход!", "Успех", wxOK | wxICON_INFORMATION);
-                } else {
-                    wxMessageBox(
-                            wxString::Format("Ошибка %d: %s", responseCode, response),
-                            "Ошибка", wxOK | wxICON_ERROR
-                    );
+            switch (responseCode) {
+                case 200:{ //Success
+                    wxMessageBox("Успешный вход!\nЗдравствуйте, " + login,
+                    "Успех", wxOK | wxICON_INFORMATION);
+                    break;
                 }
-            } else {
-                throw std::runtime_error("Failed to receive response stream.");
+                case 400:{ //Bad Request
+                    wxMessageBox( 
+                            "Ошибка: Неверное имя пользователя или пароль! Поля должны быть непустыми и содержать до 50 символов!",
+                            "Ошибка",wxOK | wxICON_ERROR
+                    );
+                    break;
+                }
+                case 401:{ //Unauthorized
+                    wxMessageBox( 
+                            "Ошибка: Неверный пароль!",
+                            "Ошибка",wxOK | wxICON_ERROR
+                    );
+                    break;
+                }
+                case 404:{ //Not Find
+                    wxMessageBox( 
+                            R"(Ошибка: Пользователя с именем ")" + login + R"(" не существует!)",
+                            "Ошибка",wxOK | wxICON_ERROR
+                    );
+                    break;
+                }
+                default:{
+                    throw std::runtime_error("Не получилось получить ответ от сервера =(");
+                    break;
+                }
             }
         } else {
             throw std::runtime_error("Не удалось подключиться к серверу");

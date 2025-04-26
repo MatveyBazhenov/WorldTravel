@@ -30,6 +30,7 @@ private:
     wxTextCtrl *txtPassword;
     wxBoxSizer *sizer;
     wxGridSizer *centsizer;
+    wxLocale _locale;
 
     void ShowError(const wxString &message);
     void MakeLoginRequest(const wxString &login, const wxString &password);
