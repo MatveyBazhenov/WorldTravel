@@ -26,7 +26,7 @@ private:
     wxBoxSizer *mainSizer2;
     wxGridSizer *centerSizer2;
     wxLocale _locale;
-
+    void CustomMessageBox(wxWindow* parent, const wxString& message, const wxString& title, const wxString& imagePath);
     wxDECLARE_EVENT_TABLE();
 };
 

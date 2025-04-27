@@ -35,6 +35,28 @@ RegistrationWindow::RegistrationWindow(wxWindow *parent)
 }
 
 
+void RegistrationWindow::CustomMessageBox(wxWindow* parent, const wxString& message, const wxString& title, const wxString& imagePath) {
+    int width = 370;
+    wxDialog dlg(parent, wxID_ANY, title, wxDefaultPosition, wxSize(width, 300));
+
+    wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
+    
+    wxStaticText* text = new wxStaticText(&dlg, wxID_ANY, message);
+    text->Wrap(width - 20);
+    mainSizer->Add(text, 0, wxALIGN_CENTER | wxALL, 10);
+    
+    wxStaticBitmap* bitmap = new wxStaticBitmap(&dlg, wxID_ANY, wxBitmap(imagePath, wxBITMAP_TYPE_PNG));
+    mainSizer->Add(bitmap, 0, wxALIGN_CENTER | wxALL, 10);
+
+    wxButton* okButton = new wxButton(&dlg, wxID_OK, "ОК");
+    mainSizer->Add(okButton, 0, wxALIGN_CENTER | wxALL, 10);
+
+    dlg.SetSizerAndFit(mainSizer);
+    dlg.Centre();
+    dlg.ShowModal();
+}
+
+
 void RegistrationWindow::OnRegisterButtonClicked(wxCommandEvent &event) {
     wxString login = txtLogin->GetValue();
     wxString password = txtPassword->GetValue();
@@ -75,25 +97,19 @@ void RegistrationWindow::OnRegisterButtonClicked(wxCommandEvent &event) {
                 case 200:{ //Success
                     nlohmann::json response_json = nlohmann::json::parse(response.ToStdString());
                     if(response_json["status"].get<std::string>() == "ok"){
-                        wxMessageBox(
-                                "Регистрация успешна!\nВаш ключ: " + response_json["user_key"].get<std::string>() , "Успех",
-                                wxOK | wxICON_INFORMATION
-                        );
+                        CustomMessageBox(this, "Регистрация успешна!\nВаш ключ: " + response_json["user_key"].get<std::string>(), 
+                        "Успех","../images/Om_Nom_happy_200x200.png");
                     }
                     break;
                 }
                 case 400:{ //Bad Request
-                    wxMessageBox( 
-                            "Ошибка: Неверное имя пользователя или пароль! Поля должны быть непустыми и содержать до 50 символов!",
-                            "Ошибка",wxOK | wxICON_ERROR
-                    );
+                    CustomMessageBox(this, "Ошибка: Неверное имя пользователя или пароль!\nПоля должны быть непустыми и содержать до 50 символов!", 
+                    "Ошибка","../images/Om_Nom_sad_200x200.png");
                     break;
                 }
                 case 409:{ //Conflict
-                    wxMessageBox(
-                            R"(Ошибка: Пользоваетль с именем ")" + login + R"(" уже существует!)" ,
-                            "Ошибка",wxOK | wxICON_ERROR
-                    );
+                    CustomMessageBox(this, R"(Ошибка: Пользователь с именем ")" + login + R"(" уже существует)", "Ошибка",
+                    "../images/Om_Nom_sad_200x200.png");
                     break;
                 }
                 default:{
@@ -105,15 +121,15 @@ void RegistrationWindow::OnRegisterButtonClicked(wxCommandEvent &event) {
             throw std::runtime_error("Не удалось подключиться к серверу");
         }
     } catch (const std::exception &e) {
-        wxMessageBox(e.what(), "Ошибка", wxOK | wxICON_ERROR);
+        CustomMessageBox(this, e.what(), 
+        "Ошибка","../images/Om_Nom_sad_200x200.png");
     } catch (...) {
-        wxMessageBox("Неизвестная ошибка", "Ошибка", wxOK | wxICON_ERROR);
+        CustomMessageBox(this, "Неизвестная ошибка", 
+        "Ошибка","../images/Om_Nom_surprised_200x200.png");
     }
 
     http.Close();
 }
-
-
 
 wxBEGIN_EVENT_TABLE(RegistrationWindow, wxFrame)
     EVT_BUTTON(ID_REG2, RegistrationWindow::OnRegisterButtonClicked)
