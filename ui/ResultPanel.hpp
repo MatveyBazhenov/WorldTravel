@@ -18,26 +18,26 @@ const int ID_SAVEOPTION2 = wxID_HIGHEST + 8;
 
 class ResultPanel : public wxPanel {
 public:
-    ResultPanel(wxNotebook *parent);
-    ~ResultPanel();
+  ResultPanel(wxNotebook *parent);
+  ~ResultPanel();
 
 private:
-    void OnBack2(wxCommandEvent &event);
-    wxButton *btnTicket;
-    wxButton *btnOption1;
-    wxButton *btnOption2;
-    wxButton *btnDescribtion;
-    wxButton *btnBack2;
-    wxButton *btnSaveAll;
-    wxButton *btnSaveOption1;
-    wxButton *btnSaveOption2;
-    wxBoxSizer *mainSizer;
-    wxBoxSizer *topSizer;
-    wxGridSizer *centerSizer;
-    wxBoxSizer *bottomSizer;
-    void OnSaveOption1(wxCommandEvent &event);
-    void OnSaveOption2(wxCommandEvent &event);
-    void OnSaveAll(wxCommandEvent &event);
+  void OnBack2(wxCommandEvent &event);
+  wxButton *btnTicket;
+  wxButton *btnOption1;
+  wxButton *btnOption2;
+  wxButton *btnDescribtion;
+  wxButton *btnBack2;
+  wxButton *btnSaveAll;
+  wxButton *btnSaveOption1;
+  wxButton *btnSaveOption2;
+  wxBoxSizer *mainSizer;
+  wxBoxSizer *topSizer;
+  wxGridSizer *centerSizer;
+  wxBoxSizer *bottomSizer;
+  void OnSaveOption1(wxCommandEvent &event);
+  void OnSaveOption2(wxCommandEvent &event);
+  void OnSaveAll(wxCommandEvent &event);
 };
 
 #endif

@@ -23,7 +23,7 @@ public:
 
 private:
     wxButton *btnBack;
-    wxButton *btnName;
+    wxTextCtrl *txtName;
     wxButton *btnExit;
     wxBoxSizer *mainSizer5;
     wxBoxSizer *topSizer5;

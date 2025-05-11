@@ -18,20 +18,21 @@ const int ID_PASSWORD2 = wxID_HIGHEST + 18;
 
 class EnterWindow : public wxFrame {
 public:
-    EnterWindow(wxWindow *parent = nullptr);
-    void OnEnter(wxCommandEvent &event);
+  EnterWindow(wxWindow *parent = nullptr);
+  void OnEnter(wxCommandEvent &event);
 
 private:
-    wxButton *btnEnter2;
-    wxTextCtrl *txtLogin;
-    wxTextCtrl *txtPassword;
-    wxBoxSizer *sizer;
-    wxGridSizer *centsizer;
-    wxLocale _locale;
+  wxButton *btnEnter2;
+  wxTextCtrl *txtLogin;
+  wxTextCtrl *txtPassword;
+  wxBoxSizer *sizer;
+  wxGridSizer *centsizer;
+  wxLocale _locale;
 
-    void CustomMessageBox(wxWindow* parent, const wxString& message, const wxString& title, const wxString& imagePath);
+  void CustomMessageBox(wxWindow *parent, const wxString &message,
+                        const wxString &title, const wxString &imagePath);
 
-    DECLARE_EVENT_TABLE()
+  DECLARE_EVENT_TABLE()
 };
 
 #endif

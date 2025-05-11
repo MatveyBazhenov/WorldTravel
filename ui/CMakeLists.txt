@@ -20,4 +20,5 @@ target_link_libraries(MyExecutable
     CURL::libcurl
 )
 target_compile_definitions(MyExecutable PRIVATE wxUSE_SOCKETS=1)
-
+add_subdirectory(json)
+target_link_libraries(MyExecutable PRIVATE nlohmann_json::nlohmann_json)
