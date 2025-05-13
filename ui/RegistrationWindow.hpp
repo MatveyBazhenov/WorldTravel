@@ -1,6 +1,7 @@
 #ifndef REGISTRATIONWINDOW_HPP
 #define REGISTRATIONWINDOW_HPP
 
+#include "RoundedButton.hpp"
 #include "UserData.hpp"
 #include <nlohmann/json.hpp>
 #include <wx/button.h>
@@ -21,9 +22,10 @@ public:
   void OnRegisterButtonClicked(wxCommandEvent &event);
 
 private:
+  wxStaticText *header;
   wxTextCtrl *txtLogin;
   wxTextCtrl *txtPassword;
-  wxButton *btnReg;
+  RoundedButton *btnReg;
   wxBoxSizer *mainSizer2;
   wxGridSizer *centerSizer2;
   wxLocale _locale;

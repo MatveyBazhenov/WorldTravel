@@ -4,27 +4,45 @@ RegistrationWindow::RegistrationWindow(wxWindow *parent)
     : wxFrame(parent, wxID_ANY, "Регистрация", wxDefaultPosition,
               wxDefaultSize) {
   _locale.Init(wxLANGUAGE_RUSSIAN);
-
+  this->SetBackgroundColour(wxColour(242, 242, 242));
   wxBoxSizer *mainSizer2 = new wxBoxSizer(wxVERTICAL);
-  wxGridSizer *centerSizer2 = new wxGridSizer(3, 1, 10, 10);
+  wxGridSizer *centerSizer2 = new wxGridSizer(0, 1, 10, 10);
 
   txtLogin = new wxTextCtrl(this, wxID_ANY);
   txtLogin->SetHint("Логин");
-  txtLogin->SetMinSize(wxSize(200, 100));
+  txtLogin->SetMinSize(wxSize(150, 60));
+  txtLogin->SetBackgroundColour(*wxWHITE);
 
   txtPassword = new wxTextCtrl(this, wxID_ANY);
   txtPassword->SetHint("Пароль");
-  txtPassword->SetMinSize(wxSize(200, 100));
+  txtPassword->SetMinSize(wxSize(150, 60));
+  txtPassword->SetBackgroundColour(*wxWHITE);
 
-  btnReg = new wxButton(this, ID_REG2, "Зарегистрироваться");
-  btnReg->SetMinSize(wxSize(200, 100));
+  btnReg = new RoundedButton(this, ID_REG2, "Зарегистрироваться",
+                             wxColour(28, 124, 84), // цвет фона
+                             *wxWHITE,              // цвет текста
+                             30, // радиус скругления
+                             wxDefaultPosition, wxSize(200, 60)); // размер
+
+  wxStaticText *header = new wxStaticText(this, wxID_ANY, "Регистрация");
+  wxFont headerFont(wxFontInfo(15)
+                        .Family(wxFONTFAMILY_SWISS)
+                        .FaceName("Roboto")
+                        .Weight(wxFONTWEIGHT_BOLD));
+  header->SetFont(headerFont);
+  header->SetForegroundColour(wxColour(50, 50, 50));
+  centerSizer2->Add(header, 0, wxALIGN_CENTER_HORIZONTAL | wxTOP | wxBOTTOM,
+                    15);
 
   centerSizer2->Add(txtLogin, 0, wxALIGN_CENTER | wxALL, 5);
   centerSizer2->Add(txtPassword, 0, wxALIGN_CENTER | wxALL, 5);
   centerSizer2->Add(btnReg, 0, wxALIGN_CENTER | wxALL, 5);
 
   // Шрифт кнопок
-  wxFont btnF(12, wxFONTFAMILY_ROMAN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD);
+  wxFont btnF(wxFontInfo(12)
+                  .Family(wxFONTFAMILY_SWISS)
+                  .FaceName("Roboto")
+                  .Weight(wxFONTWEIGHT_MEDIUM));
   txtPassword->SetFont(btnF);
   btnReg->SetFont(btnF);
   txtLogin->SetFont(btnF);
@@ -102,7 +120,7 @@ void RegistrationWindow::OnRegisterButtonClicked(wxCommandEvent &event) {
             nlohmann::json::parse(response.ToStdString());
         if (response_json["status"].get<std::string>() == "ok") {
           // Сохраняем имя пользователя
-          UserData::GetInstance().SetUsername(login); // <-- Добавьте эту строку
+          UserData::GetInstance().SetUsername(login);
 
           CustomMessageBox(this,
                            "Регистрация успешна!\nВаш ключ: " +

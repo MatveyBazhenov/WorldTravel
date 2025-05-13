@@ -1,3 +1,6 @@
+#ifndef ROUNDED_BUTTON_HPP
+#define ROUNDED_BUTTON_HPP
+
 #include <wx/wx.h>
 
 class RoundedButton : public wxPanel {
@@ -24,3 +27,5 @@ private:
   wxString label;
   bool isPressed;
 };
+
+#endif // ROUNDED_BUTTON_HPP

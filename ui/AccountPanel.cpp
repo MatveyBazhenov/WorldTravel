@@ -6,6 +6,8 @@
 AccountPanel::AccountPanel(wxNotebook *parent) : wxPanel(parent, wxID_ANY) {
   wxLocale locale;
   locale.Init(wxLANGUAGE_RUSSIAN);
+  this->SetBackgroundColour(wxColour(242, 242, 242));
+
   mainSizer5 = new wxBoxSizer(wxVERTICAL);
   centerSizer5 = new wxFlexGridSizer(3, 10, 10);
   topSizer5 = new wxBoxSizer(wxHORIZONTAL);

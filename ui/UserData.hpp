@@ -1,4 +1,3 @@
-
 #ifndef USERDATA_HPP
 #define USERDATA_HPP
 

@@ -6,31 +6,50 @@ wxBEGIN_EVENT_TABLE(EnterWindow, wxFrame)
 EnterWindow::EnterWindow(wxWindow *parent)
     : wxFrame(parent, wxID_ANY, "Вход", wxDefaultPosition, wxDefaultSize) {
   _locale.Init(wxLANGUAGE_RUSSIAN);
+  this->SetBackgroundColour(wxColour(242, 242, 242));
+
   sizer = new wxBoxSizer(wxVERTICAL);
-  centsizer = new wxGridSizer(3, 1, 10, 10);
+  centsizer = new wxGridSizer(0, 1, 10, 10);
+
+  wxStaticText *header = new wxStaticText(this, wxID_ANY, "Вход");
+  wxFont headerFont(wxFontInfo(15)
+                        .Family(wxFONTFAMILY_SWISS)
+                        .FaceName("Roboto")
+                        .Weight(wxFONTWEIGHT_BOLD));
+  header->SetFont(headerFont);
+  header->SetForegroundColour(wxColour(50, 50, 50));
 
   txtLogin = new wxTextCtrl(this, wxID_ANY);
   txtLogin->SetHint("Логин");
-  txtLogin->SetMinSize(wxSize(200, 100));
+  txtLogin->SetMinSize(wxSize(150, 60));
+  txtLogin->SetBackgroundColour(*wxWHITE);
 
   txtPassword = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition,
                                wxDefaultSize, wxTE_PASSWORD);
   txtPassword->SetHint("Пароль");
-  txtPassword->SetMinSize(wxSize(200, 100));
+  txtPassword->SetMinSize(wxSize(150, 60));
+  txtPassword->SetBackgroundColour(*wxWHITE);
 
-  btnEnter2 = new wxButton(this, ID_ENTER, "Войти");
-  btnEnter2->SetMinSize(wxSize(200, 100));
+  btnEnter2 = new RoundedButton(this, ID_ENTER, "Войти",
+                                wxColour(28, 124, 84), // цвет фона
+                                *wxWHITE,              // цвет текста
+                                30, // радиус скругления
+                                wxDefaultPosition, wxSize(150, 60)); // размер
 
   centsizer->Add(txtLogin, 0, wxALIGN_CENTER | wxALL, 5);
   centsizer->Add(txtPassword, 0, wxALIGN_CENTER | wxALL, 5);
   centsizer->Add(btnEnter2, 0, wxALIGN_CENTER | wxALL, 5);
 
   // Шрифт кнопок
-  wxFont btnF(12, wxFONTFAMILY_ROMAN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD);
+  wxFont btnF(wxFontInfo(12)
+                  .Family(wxFONTFAMILY_SWISS)
+                  .FaceName("Roboto")
+                  .Weight(wxFONTWEIGHT_MEDIUM));
   txtPassword->SetFont(btnF);
   btnEnter2->SetFont(btnF);
   txtLogin->SetFont(btnF);
   //
+  sizer->Add(header, 0, wxALIGN_CENTER | wxALL, 10);
 
   sizer->Add(centsizer, 1, wxEXPAND | wxALL, 10);
 

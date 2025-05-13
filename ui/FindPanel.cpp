@@ -81,7 +81,6 @@ void FindPanel::OnFind(wxCommandEvent &event) {
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, jsonBody.c_str());
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
-    // Выполнение запроса
     CURLcode res = curl_easy_perform(curl);
     if (res != CURLE_OK) {
       wxMessageBox("Ошибка при отправке запроса: " +
@@ -89,12 +88,10 @@ void FindPanel::OnFind(wxCommandEvent &event) {
                    "Ошибка", wxICON_ERROR);
     }
 
-    // Очистка всего
     curl_slist_free_all(headers);
     curl_easy_cleanup(curl);
   }
 
-  // Переключение на панель результатов
   wxNotebook *parentNotebook = static_cast<wxNotebook *>(GetParent());
   parentNotebook->DeleteAllPages();
   parentNotebook->AddPage(new ResultPanel(parentNotebook), "Результаты", true);

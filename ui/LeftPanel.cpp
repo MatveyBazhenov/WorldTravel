@@ -15,7 +15,6 @@ LeftPanel::LeftPanel(wxNotebook *parent)
   }
   Bind(wxEVT_PAINT, &LeftPanel::OnPaint, this);
   Bind(wxEVT_SIZE, &LeftPanel::OnSize, this);
-
   wxBoxSizer *mainSizer3 = new wxBoxSizer(wxHORIZONTAL);
   mainSizer3->AddStretchSpacer(1);
   wxBoxSizer *rightSizer = new wxBoxSizer(wxVERTICAL);

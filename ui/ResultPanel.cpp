@@ -5,6 +5,8 @@
 ResultPanel::ResultPanel(wxNotebook *parent) : wxPanel(parent, wxID_ANY) {
   wxLocale locale;
   locale.Init(wxLANGUAGE_RUSSIAN);
+  this->SetBackgroundColour(wxColour(242, 242, 242));
+
   wxBoxSizer *mainSizer = new wxBoxSizer(wxVERTICAL);
 
   wxBoxSizer *topSizer = new wxBoxSizer(wxHORIZONTAL);

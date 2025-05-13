@@ -2,6 +2,7 @@
 #ifndef ENTERWINDOW_HPP
 #define ENTERWINDOW_HPP
 
+#include "RoundedButton.hpp"
 #include <wx/button.h>
 #include <wx/intl.h>
 #include <wx/msgdlg.h>
@@ -22,10 +23,11 @@ public:
   void OnEnter(wxCommandEvent &event);
 
 private:
-  wxButton *btnEnter2;
+  RoundedButton *btnEnter2;
   wxTextCtrl *txtLogin;
   wxTextCtrl *txtPassword;
   wxBoxSizer *sizer;
+  wxStaticText *header;
   wxGridSizer *centsizer;
   wxLocale _locale;
 
