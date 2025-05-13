@@ -12,6 +12,8 @@ include(${wxWidgets_USE_FILE})
 
 find_package(CURL REQUIRED)
 
+find_package(nlohmann_json 3.0.0 REQUIRED)
+
 find_package(wxWidgets REQUIRED COMPONENTS core base net html adv)
 
 target_link_libraries(MyExecutable 
@@ -19,6 +21,7 @@ target_link_libraries(MyExecutable
     ${wxWidgets_LIBRARIES} 
     CURL::libcurl
 )
+
 target_compile_definitions(MyExecutable PRIVATE wxUSE_SOCKETS=1)
-add_subdirectory(json)
+
 target_link_libraries(MyExecutable PRIVATE nlohmann_json::nlohmann_json)
