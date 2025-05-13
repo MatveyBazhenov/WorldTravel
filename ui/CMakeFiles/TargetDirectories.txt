@@ -1,0 +1,3 @@
+/home/smallmish/Документы/WorldTravel/WorldTravel/ui/CMakeFiles/MyExecutable.dir
+/home/smallmish/Документы/WorldTravel/WorldTravel/ui/CMakeFiles/edit_cache.dir
+/home/smallmish/Документы/WorldTravel/WorldTravel/ui/CMakeFiles/rebuild_cache.dir

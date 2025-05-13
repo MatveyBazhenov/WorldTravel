@@ -5,7 +5,19 @@ import pytest
 from testsuite.databases.pgsql import discover
 
 
-pytest_plugins = ['pytest_userver.plugins.postgresql']
+pytest_plugins = ['pytest_userver.plugins.postgresql',
+                 'pytest_userver.plugins.core']
+
+USERVER_CONFIG_HOOKS = ['userver_config_Aviasales']
+
+@pytest.fixture(scope='session')
+def userver_config_Aviasales(mockserver_info):
+    def do_patch(config_yaml, config_vars):
+        components = config_yaml['components_manager']['components']
+        components['aviasales-api']['url-IATA'] = mockserver_info.url('iata')
+        components['aviasales-api']['url-aviasales'] = mockserver_info.url('prices')
+    
+    return do_patch
 
 
 @pytest.fixture(scope='session')
