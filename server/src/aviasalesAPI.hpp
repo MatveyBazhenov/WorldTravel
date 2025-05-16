@@ -51,7 +51,8 @@ class AviasalesAPI final : public userver::components::LoggableComponentBase {
   }
 
   std::string GetIATACode(std::string from, std::string to) {
-    std::string url = url_IATA_ + fmt::format("из%20{}%20в%20", from) + to;
+    std::string url = url_IATA_; 
+    // url += fmt::format("из%20{}%20в%20", from) + to;
     auto response = http_client_->CreateRequest()
                         .get(url)
                         .timeout(std::chrono::seconds(5))
@@ -74,12 +75,11 @@ class AviasalesAPI final : public userver::components::LoggableComponentBase {
     std::string origin = cities_IATA_json["origin"].As<std::string>();
     std::string destination = cities_IATA_json["destination"].As<std::string>();
     std::string departure_at = json["departure_at"].As<std::string>();
-    std::string url =
-        url_aviasales_ +
-        fmt::format(
-            R"(origin={}&destination={}&departure_at={}&unique=false&sorting=price&direct=false&currency=rub&limit=5&page=1&one_way=true&token={})",
-            origin, destination, departure_at,
-            secrets_["aviasales_token"].As<std::string>());
+    std::string url = url_aviasales_; 
+    // url += fmt::format(
+    //     R"(origin={}&destination={}&departure_at={}&unique=false&sorting=price&direct=false&currency=rub&limit=5&page=1&one_way=true&token={})",
+    //     origin, destination, departure_at,
+    //     secrets_["aviasales_token"].As<std::string>());
     auto response = http_client_->CreateRequest()
                         .get(url)
                         .timeout(std::chrono::seconds(5))

@@ -1,44 +1,13 @@
 import pytest
 
-@pytest.fixture
-def mock_aviasales(mockserver):
-    @mockserver.handler('/iata')
-    async def _mock_iata(request):
-        return mockserver.make_response(
-            json={
-                "origin" :{
-                    "iata" : "MOW"
-                },
-                "destination" :{
-                    "iata" : "KHV"
-                }
-            },
-            status=200
-        )
-
-    @mockserver.handler('/prices')
-    async def _mock_prices(request):
-        return mockserver.make_response(
-            json={
-                "success": True,
-                "data": [{
-                    "origin": "MOW",
-                    "destination": "KHV",
-                    "departure_at": "2025-05-15T08:25:00+03:00",
-                    "price": 25636
-                }]
-            },
-            status=200
-        )
-
 @pytest.mark.asyncio
 async def test_http_client_mock(mock_aviasales, service_client):
-    response = await service_client.post(
+    response = await service_client.get(
         '/http-client',
         json={
             "origin": "Москва",
             "destination": "Хабаровск",
-            "departure_at": "2025-05-15",
+            "departure_at": "2025-07-15",
             "price": 40000,
         },
     )
@@ -49,6 +18,6 @@ async def test_http_client_mock(mock_aviasales, service_client):
         "destination_city": "Хабаровск",
         "origin_IATA": "MOW",
         "destination_IATA": "KHV",
-        "departure_at": "2025-05-15T08:25:00+03:00",
-        "price": 25636
+        "departure_at": "2025-07-15T17:20:00+03:00",
+        "price": 17000
     }
