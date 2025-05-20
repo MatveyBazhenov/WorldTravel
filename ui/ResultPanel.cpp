@@ -2,12 +2,18 @@
 #include "FindPanel.hpp"
 #include "UserData.hpp"
 
-ResultPanel::ResultPanel(wxNotebook *parent) : wxPanel(parent, wxID_ANY) {
-  wxLocale locale;
-  locale.Init(wxLANGUAGE_RUSSIAN);
+ResultPanel::ResultPanel(wxNotebook *parent, const std::string &responseData)
+    : wxPanel(parent, wxID_ANY) {
+  _locale.Init(wxLANGUAGE_RUSSIAN);
+
   this->SetBackgroundColour(wxColour(242, 242, 242));
 
   wxBoxSizer *mainSizer = new wxBoxSizer(wxVERTICAL);
+
+  wxTextCtrl *responseText =
+      new wxTextCtrl(this, wxID_ANY, "", wxDefaultPosition, wxSize(600, 300),
+                     wxTE_MULTILINE | wxTE_READONLY | wxHSCROLL);
+  responseText->SetValue(responseData);
 
   wxBoxSizer *topSizer = new wxBoxSizer(wxHORIZONTAL);
   btnDescribtion =
@@ -42,6 +48,8 @@ ResultPanel::ResultPanel(wxNotebook *parent) : wxPanel(parent, wxID_ANY) {
   bottomSizer->Add(btnSaveOption2, 0, wxALL, 5);
 
   mainSizer->Add(topSizer, 0, wxEXPAND | wxALL, 10);
+  mainSizer->Add(responseText, 1, wxEXPAND | wxALL, 10);
+
   mainSizer->Add(centerSizer, 1, wxEXPAND | wxALL, 10);
   mainSizer->Add(bottomSizer, 0, wxALIGN_RIGHT | wxALL, 10);
 

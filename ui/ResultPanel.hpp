@@ -20,8 +20,10 @@ class ResultPanel : public wxPanel {
 public:
   ResultPanel(wxNotebook *parent);
   ~ResultPanel();
+  ResultPanel(wxNotebook *parent, const std::string &responseData);
 
 private:
+  wxLocale _locale;
   void OnBack2(wxCommandEvent &event);
   wxButton *btnTicket;
   wxButton *btnOption1;
