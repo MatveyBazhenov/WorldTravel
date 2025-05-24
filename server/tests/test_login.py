@@ -10,7 +10,9 @@ async def test_successful_login(service_client):
     )
     
     assert response.status == 200
-    assert response.text == "Welcome, existing_user\n"
+    body = await response.json()
+    assert body["status"] == "ok"
+    assert "user_key" in body
 
 @pytest.mark.pgsql('db_1', files=['initial_data.sql'])
 async def test_user_not_found(service_client):
@@ -19,7 +21,10 @@ async def test_user_not_found(service_client):
         json={'login': 'not_existing_user', 'password': 'another_password'}
     )
     assert response.status == 404
-    assert response.text == "Unknown user\n"
+    assert await response.json() == {
+        "status": "error",
+        "message": "Unknown user."
+    }
 
 @pytest.mark.pgsql('db_1', files=['initial_data.sql'])
 async def test_wrong_password(service_client):
@@ -28,7 +33,10 @@ async def test_wrong_password(service_client):
         json={'login': 'existing_user', 'password': 'wrong_password'}
     )
     assert response.status == 401
-    assert response.text == "Incorrect password\n"
+    assert await response.json() == {
+        "status": "error",
+        "message": "Incorrect password."
+    }
 
 @pytest.mark.pgsql('db_1', files=['initial_data.sql'])
 async def test_too_long_password(service_client):
@@ -37,7 +45,10 @@ async def test_too_long_password(service_client):
         json={'login': 'existing_user', 'password': '1' * 51}
     )
     assert response.status == 400
-    assert response.json() == {"status": "error", "message": "Invalid username or password. Must be non-empty and up to 50 characters"}
+    assert await response.json() == {
+        "status": "error",
+        "message": "Invalid username or password. Must be non-empty and up to 50 characters"
+    }
 
 
 @pytest.mark.pgsql('db_1', files=['initial_data.sql'])
@@ -47,7 +58,10 @@ async def test_too_long_username(service_client):
         json={'login': '1' * 51, 'password': 'correct_password'}
     )
     assert response.status == 400
-    assert response.json() == {"status": "error", "message": "Invalid username or password. Must be non-empty and up to 50 characters"}
+    assert await response.json() == {
+        "status": "error",
+        "message": "Invalid username or password. Must be non-empty and up to 50 characters"
+    }
 
 
 @pytest.mark.pgsql('db_1', files=['initial_data.sql'])
@@ -57,17 +71,23 @@ async def test_empty_password(service_client):
         json={'login': 'existing_user', 'password': ''}
     )
     assert response.status == 400
-    assert response.json() == {"status": "error", "message": "Invalid username or password. Must be non-empty and up to 50 characters"}
+    assert await response.json() == {
+        "status": "error",
+        "message": "Invalid username or password. Must be non-empty and up to 50 characters"
+    }
 
 
 @pytest.mark.pgsql('db_1', files=['initial_data.sql'])
-async def test_empty_password(service_client):
+async def test_empty_username(service_client):
     response = await service_client.post(
         '/login',
         json={'login': '', 'password': 'correct_password'}
     )
     assert response.status == 400
-    assert response.json() == {"status": "error", "message": "Invalid username or password. Must be non-empty and up to 50 characters"}
+    assert await response.json() == {
+        "status": "error",
+        "message": "Invalid username or password. Must be non-empty and up to 50 characters"
+    }
 
 
 @pytest.mark.pgsql('db_1', files=['initial_data.sql'])
@@ -77,18 +97,22 @@ async def test_some_users(service_client):
         json={'login': 'first_user', 'password': 'first_password'}
     )
     assert response.status == 200
-    assert response.text == "Welcome, first_user\n"
+    assert response.status == 200
+    assert (await response.json())["status"] == "ok"
 
     response = await service_client.post(
         '/login',
         json={'login': 'second_user', 'password': 'second_password'}
     )
     assert response.status == 200
-    assert response.text == "Welcome, second_user\n"
+    assert (await response.json())["status"] == "ok"
 
     response = await service_client.post(
         '/login',
         json={'login': 'first_user', 'password': 'wrong_password'}
     )
     assert response.status == 401
-    assert response.text == "Incorrect password\n"
+    assert await response.json() == {
+        "status": "error",
+        "message": "Incorrect password."
+    }
