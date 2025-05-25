@@ -5,8 +5,7 @@
 LeftPanel::LeftPanel(wxNotebook *parent)
     : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize,
               wxBORDER_SUNKEN) {
-  wxLocale locale;
-  locale.Init(wxLANGUAGE_RUSSIAN);
+  _locale.Init(wxLANGUAGE_RUSSIAN);
 
   this->SetBackgroundColour(wxColour(242, 242, 242)); // светло-серый фон
   if (!m_backgroundBitmap.LoadFile("../images/background1.jpg",
@@ -29,7 +28,6 @@ LeftPanel::LeftPanel(wxNotebook *parent)
   subtitle->SetFont(wxFontInfo(15)
                         .Family(wxFONTFAMILY_SWISS)
                         .FaceName("Roboto Light")
-                        .Weight(wxFONTWEIGHT_LIGHT)
                         .Italic());
   subtitle->SetForegroundColour(*wxBLACK);
   wxBoxSizer *buttonSizer = new wxBoxSizer(wxVERTICAL);
@@ -57,8 +55,7 @@ LeftPanel::LeftPanel(wxNotebook *parent)
 
   wxFont btnFont(wxFontInfo(16)
                      .Family(wxFONTFAMILY_SWISS)
-                     .FaceName("Roboto")
-                     .Weight(wxFONTWEIGHT_MEDIUM));
+                     .FaceName("Roboto"));
   btnIn->SetFont(btnFont);
   btnReg->SetFont(btnFont);
   btnIn->SetForegroundColour(*wxWHITE);

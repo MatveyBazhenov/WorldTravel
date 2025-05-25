@@ -1,4 +1,3 @@
-
 #include "FindPanel.hpp"
 #include "AccountPanel.hpp"
 #include "ResultPanel.hpp"
@@ -17,8 +16,7 @@ FindPanel::FindPanel(wxNotebook *parent) : wxPanel(parent, wxID_ANY) {
 
   wxFont btnFont(wxFontInfo(12)
                      .Family(wxFONTFAMILY_SWISS)
-                     .FaceName("Roboto")
-                     .Weight(wxFONTWEIGHT_MEDIUM));
+                     .FaceName("Roboto"));
 
   this->SetBackgroundColour(wxColour(242, 242, 242));
   Bind(wxEVT_SIZE, &FindPanel::OnSize, this);
@@ -164,7 +162,7 @@ void FindPanel::OnFindClick(wxMouseEvent &event) {
       }
 
       wxString response;
-      wxInputStream *stream = http.GetInputStream("/search");
+      wxInputStream *stream = http.GetInputStream("/http-client");
       if (stream) {
         wxStringOutputStream output(&response);
         stream->Read(output);

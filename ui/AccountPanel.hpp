@@ -29,6 +29,7 @@ private:
   wxBoxSizer *topSizer5;
   wxFlexGridSizer *centerSizer5;
   wxBoxSizer *bottomSizer5;
+  wxLocale _locale;
 
   void OnExit(wxCommandEvent &event);
   void OnBack(wxCommandEvent &event);

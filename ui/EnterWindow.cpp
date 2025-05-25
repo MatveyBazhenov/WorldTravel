@@ -14,8 +14,7 @@ EnterWindow::EnterWindow(wxWindow *parent)
   wxStaticText *header = new wxStaticText(this, wxID_ANY, "Вход");
   wxFont headerFont(wxFontInfo(15)
                         .Family(wxFONTFAMILY_SWISS)
-                        .FaceName("Roboto")
-                        .Weight(wxFONTWEIGHT_BOLD));
+                        .FaceName("Roboto"));
   header->SetFont(headerFont);
   header->SetForegroundColour(wxColour(50, 50, 50));
 
@@ -43,8 +42,7 @@ EnterWindow::EnterWindow(wxWindow *parent)
   // Шрифт кнопок
   wxFont btnF(wxFontInfo(12)
                   .Family(wxFONTFAMILY_SWISS)
-                  .FaceName("Roboto")
-                  .Weight(wxFONTWEIGHT_MEDIUM));
+                  .FaceName("Roboto"));
   txtPassword->SetFont(btnF);
   btnEnter2->SetFont(btnF);
   txtLogin->SetFont(btnF);

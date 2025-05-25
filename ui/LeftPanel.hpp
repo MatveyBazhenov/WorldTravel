@@ -27,6 +27,7 @@ private:
   wxGridSizer *centerSizer3;
   wxBitmap m_backgroundBitmap;
   wxBitmap m_scaledBackground;
+  wxLocale _locale;
 };
 
 #endif

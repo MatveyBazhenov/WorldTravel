@@ -19,6 +19,7 @@ private:
   LeftPanel *leftPanel;
   AccountPanel *accountPanel;
   void OnPageChanged(wxBookCtrlEvent &event);
+  wxLocale _locale;
   wxDECLARE_EVENT_TABLE();
 };
 

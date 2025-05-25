@@ -4,8 +4,7 @@
 #include "UserData.hpp"
 
 AccountPanel::AccountPanel(wxNotebook *parent) : wxPanel(parent, wxID_ANY) {
-  wxLocale locale;
-  locale.Init(wxLANGUAGE_RUSSIAN);
+  _locale.Init(wxLANGUAGE_RUSSIAN);
   this->SetBackgroundColour(wxColour(242, 242, 242));
 
   mainSizer5 = new wxBoxSizer(wxVERTICAL);
