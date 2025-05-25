@@ -80,3 +80,40 @@ def pgsql_local(service_source_dir, pgsql_local_create):
         [service_source_dir.joinpath('postgresql/schemas')],
     )
     return pgsql_local_create(list(databases.values()))
+
+@pytest.fixture(scope='session')
+def userver_config_GPT(mockserver_info):
+    def patch_config(config_yaml, config_vars):
+        components = config_yaml['components_manager']['components']
+        components['yandexgpt-api']['url'] = mockserver_info.url('gpt')
+    return patch_config
+
+
+USERVER_CONFIG_HOOKS.append('userver_config_GPT')
+
+@pytest.fixture(autouse=True)
+def mock_gpt(mockserver):
+    @mockserver.json_handler('/gpt')
+    def mock_response(request):
+        return {
+            "result": {
+                "alternatives": [
+                    {
+                        "message": {
+                            "text": '''
+                            [
+                                {"name": "Площадь Ленина", "description": "Центральная площадь Хабаровска."},
+                                {"name": "Утёс", "description": "Смотровая площадка на Амур."},
+                                {"name": "Краевой музей им. Гродекова", "description": "Исторический музей региона."},
+                                {"name": "Парк Северный", "description": "Зелёная зона отдыха."},
+                                {"name": "Набережная Амура", "description": "Живописное место для прогулок."}
+                            ]
+                            '''
+                        }
+                    }
+                ]
+            }
+        }
+
+    return mock_response
+

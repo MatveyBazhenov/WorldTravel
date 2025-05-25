@@ -12,5 +12,4 @@ dbconnection: 'postgresql://testsuite@localhost:15433/service_template_db_1'
 aviasales-url-IATA: '$mockserver/iata'
 aviasales-url-main: '$mockserver/prices'
 
-chatgpt-url: '$mockserver/plug'
-chatgpt-key: '$mockserver/plug'
+yandexgpt-url: '$mockserver/gpt'

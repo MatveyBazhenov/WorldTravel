@@ -42,8 +42,10 @@ class HttpClientComponent final
 
     userver::formats::json::Value tickets;
     tickets = aviasales_api_->GetTickets(json);
+
     std::vector<Attraction> description;
-    // description = chatgpt_api_->GetTravelInfo(json);
+    description = chatgpt_api_->GetTravelInfo(json);
+    
     userver::formats::json::ValueBuilder route;
     if (tickets["success"].As<bool>()) {
       route["origin_city"] = json["origin"];
