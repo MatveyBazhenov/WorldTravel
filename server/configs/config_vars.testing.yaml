@@ -9,4 +9,8 @@ server-port: 8080
 # service_template_db_1 is the service name + _ + filename of the db_1.sql
 dbconnection: 'postgresql://testsuite@localhost:15433/service_template_db_1'
 
-aviasales-url: 'http://{mockserver}/http-client'
+aviasales-url-IATA: '$mockserver/iata'
+aviasales-url-main: '$mockserver/prices'
+
+chatgpt-url: '$mockserver/plug'
+chatgpt-key: '$mockserver/plug'

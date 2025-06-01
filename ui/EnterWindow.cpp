@@ -1,130 +1,160 @@
 #include "EnterWindow.hpp"
 
 wxBEGIN_EVENT_TABLE(EnterWindow, wxFrame)
-    EVT_BUTTON(ID_ENTER, EnterWindow::OnEnter)
-        EVT_THREAD(wxID_ANY, EnterWindow::OnThreadEvent) wxEND_EVENT_TABLE();
+    EVT_BUTTON(ID_ENTER, EnterWindow::OnEnter) wxEND_EVENT_TABLE();
 
 EnterWindow::EnterWindow(wxWindow *parent)
     : wxFrame(parent, wxID_ANY, "Вход", wxDefaultPosition, wxDefaultSize) {
-    wxLocale locale;
-    locale.Init(wxLANGUAGE_RUSSIAN);
-    sizer = new wxBoxSizer(wxVERTICAL);
-    centsizer = new wxGridSizer(3, 1, 10, 10);
+  _locale.Init(wxLANGUAGE_RUSSIAN);
+  this->SetBackgroundColour(wxColour(242, 242, 242));
 
-    txtLogin = new wxTextCtrl(this, wxID_ANY);
-    txtLogin->SetHint("Логин");
-    txtLogin->SetMinSize(wxSize(200, 100));
+  sizer = new wxBoxSizer(wxVERTICAL);
+  centsizer = new wxGridSizer(0, 1, 10, 10);
 
-    txtPassword = new wxTextCtrl(
-        this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize,
-        wxTE_PASSWORD
-    );
-    txtPassword->SetHint("Пароль");
-    txtPassword->SetMinSize(wxSize(200, 100));
+  wxStaticText *header = new wxStaticText(this, wxID_ANY, "Вход");
+  wxFont headerFont(wxFontInfo(15)
+                        .Family(wxFONTFAMILY_SWISS)
+                        .FaceName("Roboto"));
+  header->SetFont(headerFont);
+  header->SetForegroundColour(wxColour(50, 50, 50));
 
-    btnEnter2 = new wxButton(this, ID_ENTER, "Войти");
-    btnEnter2->SetMinSize(wxSize(200, 100));
+  txtLogin = new wxTextCtrl(this, wxID_ANY);
+  txtLogin->SetHint("Логин");
+  txtLogin->SetMinSize(wxSize(150, 60));
+  txtLogin->SetBackgroundColour(*wxWHITE);
 
-    centsizer->Add(txtLogin, 0, wxALIGN_CENTER | wxALL, 5);
-    centsizer->Add(txtPassword, 0, wxALIGN_CENTER | wxALL, 5);
-    centsizer->Add(btnEnter2, 0, wxALIGN_CENTER | wxALL, 5);
+  txtPassword = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition,
+                               wxDefaultSize, wxTE_PASSWORD);
+  txtPassword->SetHint("Пароль");
+  txtPassword->SetMinSize(wxSize(150, 60));
+  txtPassword->SetBackgroundColour(*wxWHITE);
 
-    sizer->Add(centsizer, 1, wxEXPAND | wxALL, 10);
+  btnEnter2 = new RoundedButton(this, ID_ENTER, "Войти",
+                                wxColour(28, 124, 84), // цвет фона
+                                *wxWHITE,              // цвет текста
+                                30, // радиус скругления
+                                wxDefaultPosition, wxSize(150, 60)); // размер
 
-    this->SetSizer(sizer);
-    Center();
-    this->Fit();
+  centsizer->Add(txtLogin, 0, wxALIGN_CENTER | wxALL, 5);
+  centsizer->Add(txtPassword, 0, wxALIGN_CENTER | wxALL, 5);
+  centsizer->Add(btnEnter2, 0, wxALIGN_CENTER | wxALL, 5);
+
+  // Шрифт кнопок
+  wxFont btnF(wxFontInfo(12)
+                  .Family(wxFONTFAMILY_SWISS)
+                  .FaceName("Roboto"));
+  txtPassword->SetFont(btnF);
+  btnEnter2->SetFont(btnF);
+  txtLogin->SetFont(btnF);
+  //
+  sizer->Add(header, 0, wxALIGN_CENTER | wxALL, 10);
+
+  sizer->Add(centsizer, 1, wxEXPAND | wxALL, 10);
+
+  this->SetSizer(sizer);
+  Center();
+  this->Fit();
+}
+
+void EnterWindow::CustomMessageBox(wxWindow *parent, const wxString &message,
+                                   const wxString &title,
+                                   const wxString &imagePath) {
+  int width = 370;
+  wxDialog dlg(parent, wxID_ANY, title, wxDefaultPosition, wxSize(width, 300));
+
+  wxBoxSizer *mainSizer = new wxBoxSizer(wxVERTICAL);
+
+  wxStaticText *text = new wxStaticText(&dlg, wxID_ANY, message);
+  text->Wrap(width - 20);
+  mainSizer->Add(text, 0, wxALIGN_CENTER | wxALL, 10);
+
+  wxStaticBitmap *bitmap = new wxStaticBitmap(
+      &dlg, wxID_ANY, wxBitmap(imagePath, wxBITMAP_TYPE_PNG));
+  mainSizer->Add(bitmap, 0, wxALIGN_CENTER | wxALL, 10);
+
+  wxButton *okButton = new wxButton(&dlg, wxID_OK, "ОК");
+  mainSizer->Add(okButton, 0, wxALIGN_CENTER | wxALL, 10);
+
+  dlg.SetSizerAndFit(mainSizer);
+  dlg.Centre();
+  dlg.ShowModal();
 }
 
 void EnterWindow::OnEnter(wxCommandEvent &event) {
-    wxString login = txtLogin->GetValue();
-    wxString password = txtPassword->GetValue();
+  wxString login = txtLogin->GetValue();
+  wxString password = txtPassword->GetValue();
 
-    if (login.empty() || password.empty()) {
-        ShowError("Логин и пароль не могут быть пустыми!");
-        return;
+  if (login.empty() || password.empty()) {
+    wxMessageBox("Заполните все поля!", "Ошибка", wxOK | wxICON_ERROR);
+    return;
+  }
+
+  wxHTTP http;
+  http.SetTimeout(10);
+
+  try {
+    if (http.Connect("localhost", 8080)) {
+      http.SetMethod("POST");
+      http.SetHeader("Content-Type", "application/json");
+
+      wxString jsonBody = wxString::Format(
+          R"({"login": "%s", "password": "%s"})", login, password);
+
+      if (!http.SetPostText("application/json", jsonBody)) {
+        throw std::runtime_error("Failed to set POST data");
+      }
+
+      wxString response;
+      wxInputStream *stream = http.GetInputStream("/login");
+      if (stream) {
+        wxStringOutputStream output(&response);
+        stream->Read(output);
+        delete stream;
+      }
+
+      int responseCode = http.GetResponse();
+      wxLogDebug("Response code: %d", responseCode);
+
+      switch (responseCode) {
+      case 200: { // Success
+        CustomMessageBox(this, "Успешный вход!\nЗдравствуйте, " + login,
+                         "Успех", "../images/Om_Nom_happy_200x200.png");
+        break;
+      }
+      case 400: { // Bad Request
+        CustomMessageBox(this,
+                         "Ошибка: Неверное имя пользователя или пароль!\nПоля "
+                         "должны быть непустыми и содержать до 50 символов!",
+                         "Ошибка", "../images/Om_Nom_sad_200x200.png");
+        break;
+      }
+      case 401: { // Unauthorized
+        CustomMessageBox(this, "Ошибка: Неверный пароль!", "Ошибка",
+                         "../images/Om_Nom_surprised_200x200.png");
+        break;
+      }
+      case 404: { // Not Find
+        CustomMessageBox(this,
+                         R"(Ошибка: Пользователя с именем ")" + login +
+                             R"(" не существует!)",
+                         "Ошибка", "../images/Om_Nom_surprised_200x200.png");
+        break;
+      }
+      default: {
+        throw std::runtime_error("Не получилось получить ответ от сервера");
+        break;
+      }
+      }
+    } else {
+      throw std::runtime_error("Не удалось подключиться к серверу");
     }
+  } catch (const std::exception &e) {
+    CustomMessageBox(this, e.what(), "Ошибка",
+                     "../images/Om_Nom_sad_200x200.png");
+  } catch (...) {
+    CustomMessageBox(this, "Неизвестная ошибка", "Ошибка",
+                     "../images/Om_Nom_surprised_200x200.png");
+  }
 
-    wxHTTP http;
-    http.SetTimeout(10);
-
-    try {
-        if (http.Connect("localhost", 8080)) {
-            http.SetMethod("POST");
-            http.SetHeader("Content-Type", "application/json");
-
-            wxString jsonBody = wxString::Format(
-                    R"({"login": "%s", "password": "%s"})", login, password
-            );
-
-            if (!http.SetPostText("application/json", jsonBody)) {
-                throw std::runtime_error("Failed to set POST data");
-            }
-
-            wxInputStream* stream = http.GetInputStream("/login");
-            int responseCode = http.GetResponse();
-
-            wxString response;
-            if (stream && stream->IsOk()) {
-                wxStringOutputStream output(&response);
-                stream->Read(output);
-                delete stream;
-
-                wxLogDebug("Response code: %d", responseCode);
-
-                if (responseCode == 200) {
-                    wxMessageBox("Успешный вход!", "Успех", wxOK | wxICON_INFORMATION);
-                } else {
-                    wxMessageBox(
-                            wxString::Format("Ошибка %d: %s", responseCode, response),
-                            "Ошибка", wxOK | wxICON_ERROR
-                    );
-                }
-            } else {
-                throw std::runtime_error("Failed to receive response stream.");
-            }
-        } else {
-            throw std::runtime_error("Не удалось подключиться к серверу");
-        }
-    } catch (const std::exception &e) {
-        wxMessageBox(e.what(), "Ошибка", wxOK | wxICON_ERROR);
-    } catch (...) {
-        wxMessageBox("Неизвестная ошибка", "Ошибка", wxOK | wxICON_ERROR);
-    }
-
-    http.Close();
-}
-
-
-
-void EnterWindow::OnThreadEvent(wxThreadEvent &event) {
-    int status = event.GetInt();
-    wxString response = event.GetString();
-
-    switch (status) {
-        case 200:
-            wxMessageBox("Успешный вход!", "Успех", wxOK | wxICON_INFORMATION);
-            break;
-        case 400:
-            ShowError("Некорректные данные. Проверьте ввод.");
-            break;
-        case 401:
-            ShowError("Неверный пароль.");
-            break;
-        case 404:
-            ShowError("Пользователь не найден.");
-            break;
-        case -1:
-        case -2:
-            ShowError(response);
-            break;
-        default:
-            ShowError(
-                wxString::Format("Ошибка сервера: %d\n%s", status, response)
-            );
-    }
-}
-
-void EnterWindow::ShowError(const wxString &message) {
-    wxMessageBox(message, "Ошибка", wxOK | wxICON_ERROR);
+  http.Close();
 }

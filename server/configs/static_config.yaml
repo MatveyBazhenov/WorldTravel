@@ -83,6 +83,11 @@ components_manager:
             path: /registration
             method: POST
             task_processor: main-task-processor
+
+        handler-save_trip:
+            path: /save-trip
+            method: POST
+            task_processor: main-task-processor
             
         postgres-db-1:
             dbconnection: $dbconnection
