@@ -16,6 +16,7 @@
 #include "registration.hpp"
 #include "find.hpp"
 #include "aviasalesAPI.hpp"
+#include "save_trip.hpp"
 #include "userver/storages/secdist/component.hpp"
 #include "userver/storages/secdist/provider_component.hpp"
 #include "chatgptAPI.hpp"
@@ -32,7 +33,8 @@ int main(int argc, char* argv[]) {
                             .Append<ChatGPTAPI>()
                             .Append<userver::components::DefaultSecdistProvider>()
                             .Append<userver::components::Secdist>()
-                            .Append<my_service::HttpClientComponent>();
+                            .Append<my_service::HttpClientComponent>()
+                            .Append<my_service::SaveTripHandler>();
                             
 
   service_template::AppendHello(component_list);

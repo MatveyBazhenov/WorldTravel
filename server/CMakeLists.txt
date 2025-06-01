@@ -39,10 +39,14 @@ add_library(${PROJECT_NAME}_http_client OBJECT
 )
 target_link_libraries(${PROJECT_NAME}_http_client PUBLIC userver::core)
 
+add_library(${PROJECT_NAME}_trips OBJECT
+    src/save_trip.hpp
+)
+target_link_libraries(${PROJECT_NAME}_trips PUBLIC userver::postgresql)
 
 # The Service
 add_executable(${PROJECT_NAME} src/main.cpp)
-target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_objs ${PROJECT_NAME}_login  ${PROJECT_NAME}_registration ${PROJECT_NAME}_http_client)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_objs ${PROJECT_NAME}_login  ${PROJECT_NAME}_registration ${PROJECT_NAME}_http_client ${PROJECT_NAME}_trips)
 
 # Unit Tests
 add_executable(${PROJECT_NAME}_unittest

@@ -113,7 +113,7 @@ async def test_some_users(service_client, pgsql):
     )
     cursor.execute(
         "INSERT INTO WorldTravel.users (username, password, user_key) VALUES (%s, %s, %s)",
-        ('second_user', 'second_password', '1111aaaa2222bbbb3333cccc4444')
+        ('second_user', 'second_password', '2222bbbb3333cccc4444dddd5555')
     )
 
     response = await service_client.post(
