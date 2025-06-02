@@ -47,9 +47,8 @@ components_manager:
             url-IATA: $aviasales-url-IATA
             url-aviasales: $aviasales-url-main
 
-        chatgpt-api:
-            url-chatgpt: $chatgpt-url
-            key-chatgpt: $chatgpt-key
+        yandexgpt-api:
+            url: $yandexgpt-url
         
         tests-control:
             load-enabled: $is-testing
