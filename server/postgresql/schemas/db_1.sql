@@ -17,5 +17,6 @@ CREATE TABLE IF NOT EXISTS  WorldTravel.trips(
     origin_IATA TEXT NOT NULL,
     destination_IATA TEXT NOT NULL,
     departure_at TEXT NOT NULL,
-    price INTEGER NOT NULL
+    price INTEGER NOT NULL, 
+    description_city TEXT NOT NULL
 );

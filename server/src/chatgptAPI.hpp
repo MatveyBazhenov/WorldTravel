@@ -37,8 +37,8 @@ class ChatGPTAPI final : public userver::components::LoggableComponentBase {
             auto& secdist = context.FindComponent<userver::components::Secdist>().Get();
             secrets_ = secdist.Get<userver::formats::json::Value>();
 
-            api_key = secrets_["yandex_key"].As<std::string>();
-            folder_id_ = secrets_["folder_id"].As<std::string>();
+            //api_key = secrets_["yandex_key"].As<std::string>();
+            //folder_id_ = secrets_["folder_id"].As<std::string>();
         }
 
         static userver::yaml_config::Schema GetStaticConfigSchema() {
