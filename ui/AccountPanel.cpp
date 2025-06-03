@@ -37,6 +37,7 @@ void AccountPanel::OnExit(wxCommandEvent &event) {
   }
   LeftPanel *leftPanel = new LeftPanel(parentNotebook);
   parentNotebook->AddPage(leftPanel, "Выход", true);
+  UserData::GetInstance().DestroyToken();
 }
 
 void AccountPanel::OnBack(wxCommandEvent &event) {

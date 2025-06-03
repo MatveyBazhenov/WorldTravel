@@ -12,11 +12,13 @@ RegistrationWindow::RegistrationWindow(wxWindow *parent)
   txtLogin->SetHint("Логин");
   txtLogin->SetMinSize(wxSize(150, 60));
   txtLogin->SetBackgroundColour(*wxWHITE);
+  txtLogin->SetForegroundColour(*wxBLACK);
 
   txtPassword = new wxTextCtrl(this, wxID_ANY);
   txtPassword->SetHint("Пароль");
   txtPassword->SetMinSize(wxSize(150, 60));
   txtPassword->SetBackgroundColour(*wxWHITE);
+  txtPassword->SetForegroundColour(*wxBLACK);
 
   btnReg = new RoundedButton(this, ID_REG2, "Зарегистрироваться",
                              wxColour(28, 124, 84), // цвет фона
@@ -25,9 +27,8 @@ RegistrationWindow::RegistrationWindow(wxWindow *parent)
                              wxDefaultPosition, wxSize(200, 60)); // размер
 
   wxStaticText *header = new wxStaticText(this, wxID_ANY, "Регистрация");
-  wxFont headerFont(wxFontInfo(15)
-                        .Family(wxFONTFAMILY_SWISS)
-                        .FaceName("Roboto"));
+  wxFont headerFont(
+      wxFontInfo(15).Family(wxFONTFAMILY_SWISS).FaceName("Roboto"));
   header->SetFont(headerFont);
   header->SetForegroundColour(wxColour(50, 50, 50));
   centerSizer2->Add(header, 0, wxALIGN_CENTER_HORIZONTAL | wxTOP | wxBOTTOM,
@@ -38,9 +39,7 @@ RegistrationWindow::RegistrationWindow(wxWindow *parent)
   centerSizer2->Add(btnReg, 0, wxALIGN_CENTER | wxALL, 5);
 
   // Шрифт кнопок
-  wxFont btnF(wxFontInfo(12)
-                  .Family(wxFONTFAMILY_SWISS)
-                  .FaceName("Roboto"));
+  wxFont btnF(wxFontInfo(12).Family(wxFONTFAMILY_SWISS).FaceName("Roboto"));
   txtPassword->SetFont(btnF);
   btnReg->SetFont(btnF);
   txtLogin->SetFont(btnF);
