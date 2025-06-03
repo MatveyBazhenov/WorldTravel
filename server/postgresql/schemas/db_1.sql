@@ -10,8 +10,8 @@ CREATE TABLE IF NOT EXISTS WorldTravel.users (
 );
 
 CREATE TABLE IF NOT EXISTS  WorldTravel.trips(
-    trip_id SERIAL PRIMARY KEY,
     user_key TEXT REFERENCES WorldTravel.users(user_key) ON DELETE CASCADE,
+    trip_id SERIAL PRIMARY KEY,
     origin_city TEXT NOT NULL,
     destination_city TEXT NOT NULL,
     origin_IATA TEXT NOT NULL,
