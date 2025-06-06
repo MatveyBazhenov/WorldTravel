@@ -12,29 +12,39 @@ const std::vector<wxString> &UserData::GetDrives() const { return savedDrives; }
 void UserData::SetUsername(const wxString &username) { m_username = username; }
 
 const wxString &UserData::GetUsername() const { return m_username; }
-
-void UserData::DestroyToken() {
-  if (!m_token.empty()) {
-    wxString temp = m_token;
-    wxCharBuffer buffer = temp.utf8_str();
-    size_t len = buffer.length();
-
-    if (len > 0) {
-      memset(buffer.data(), 0, len);
-    }
-    temp.clear();
-    m_token.clear();
+void UserData::DestroyUserKey() {
+  if (m_secureBuffer && m_secureLength > 0) {
+    memset(m_secureBuffer.get(), 0, m_secureLength * sizeof(wxChar));
   }
+  m_secureBuffer.reset();
+  m_secureLength = 0;
+  m_userKey.clear();
 }
 
-UserData::~UserData() {
-  DestroyToken(); 
+UserData::~UserData() { DestroyUserKey(); }
+
+void UserData::SetUserKey(const wxString &userKey) {
+  DestroyUserKey();
+
+  m_secureLength = userKey.length();
+  if (m_secureLength > 0) {
+    m_secureBuffer = std::make_unique<wxChar[]>(m_secureLength + 1);
+    memcpy(m_secureBuffer.get(), userKey.c_str(),
+           m_secureLength * sizeof(wxChar));
+    m_secureBuffer[m_secureLength] = '\0';
+  }
+
+  m_userKey = userKey;
 }
 
-void UserData::SetToken(const wxString& token) {
-    m_token = token;
+const wxString &UserData::GetUserKey() const { return m_userKey; }
+
+void UserData::AddRoute(const FlightRoute &route) {
+  savedRoutes.push_back(route);
 }
 
-const wxString& UserData::GetToken() const {
-    return m_token;
+const std::vector<FlightRoute> &UserData::GetRoutes() const {
+  return savedRoutes;
 }
+
+void UserData::ClearRoutes() { savedRoutes.clear(); }

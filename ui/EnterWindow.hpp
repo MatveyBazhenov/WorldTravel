@@ -5,7 +5,6 @@
 #include "RoundedButton.hpp"
 #include <wx/button.h>
 #include <wx/intl.h>
-
 #include <wx/msgdlg.h>
 #include <wx/notebook.h>
 #include <wx/panel.h>

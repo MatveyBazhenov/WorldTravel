@@ -126,7 +126,7 @@ void EnterWindow::OnEnter(wxCommandEvent &event) {
                            "Ошибка", "../images/Om_Nom_sad_200x200.png");
         } else {
           // Сохраняем токен
-          UserData::GetInstance().SetToken(token);
+          UserData::GetInstance().SetUsername(token);
           CustomMessageBox(this, "Успешный вход!\nЗдравствуйте, " + login,
                            "Успех", "../images/Om_Nom_happy_200x200.png");
         }
@@ -170,19 +170,16 @@ void EnterWindow::OnEnter(wxCommandEvent &event) {
   http.Close();
 }
 wxString EnterWindow::ExtractTokenFromResponse(const wxString &response) {
-  // Ищем начало токена: "token":"
-  int start = response.Find("\"token\":\"");
+
+  int start = response.Find("\"user_key\":\"");
   if (start == wxNOT_FOUND)
     return wxEmptyString;
 
-  // Перемещаемся к началу значения токена
-  start += 9; // Длина "\"token\":\""
+  start += 12;
 
-  // Ищем конец токена (закрывающая кавычка)
   int end = response.find('"', start);
   if (end == wxNOT_FOUND)
     return wxEmptyString;
 
-  // Извлекаем подстроку между start и end
   return response.SubString(start, end - 1);
 }

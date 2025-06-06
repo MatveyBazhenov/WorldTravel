@@ -1,6 +1,7 @@
 #ifndef ACCOUNTPANEL_HPP
 #define ACCOUNTPANEL_HPP
 
+#include "UserData.hpp"
 #include <vector>
 #include <wx/button.h>
 #include <wx/intl.h>
@@ -19,7 +20,9 @@ class AccountPanel : public wxPanel {
 public:
   AccountPanel(wxNotebook *parent);
   ~AccountPanel();
-  void RefreshDrives();
+
+  void UpdateRouteButtons();
+  void RefreshRoutes();
 
 private:
   wxButton *btnBack;
@@ -30,6 +33,7 @@ private:
   wxFlexGridSizer *centerSizer5;
   wxBoxSizer *bottomSizer5;
   wxLocale _locale;
+  std::vector<wxButton *> routeButtons;
 
   void OnExit(wxCommandEvent &event);
   void OnBack(wxCommandEvent &event);

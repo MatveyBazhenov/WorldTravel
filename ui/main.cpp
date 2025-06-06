@@ -12,8 +12,9 @@ public:
 wxIMPLEMENT_APP(MyApp);
 
 bool MyApp::OnInit() {
-  wxSocketBase::Initialize();
+  wxSocketBase::Initialize(); 
   MainWin *mainWin = new MainWin();
   mainWin->Show(true);
   return true;
 }
+

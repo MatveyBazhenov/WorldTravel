@@ -12,17 +12,17 @@ wxBEGIN_EVENT_TABLE(MainWin, wxFrame)
   notebook = new wxNotebook(this, wxID_ANY);
 
   leftPanel = new LeftPanel(notebook);
-   FindPanel *findPanel = new FindPanel(notebook); //
+  FindPanel *findPanel = new FindPanel(notebook); //
 
   notebook->AddPage(leftPanel, "Мой аккаунт", true);
-   notebook->AddPage(findPanel, "Подобрать путешествие"); //
-   accountPanel = new AccountPanel(notebook);             //
-   notebook->AddPage(accountPanel, "Личный кабинет");     //
+  notebook->AddPage(findPanel, "Подобрать путешествие"); //
+  accountPanel = new AccountPanel(notebook);             //
+  notebook->AddPage(accountPanel, "Личный кабинет");     //
 }
 
 void MainWin::OnPageChanged(wxBookCtrlEvent &event) {
   if (notebook->GetCurrentPage() == accountPanel && accountPanel != nullptr) {
-    accountPanel->RefreshDrives();
+    accountPanel->RefreshRoutes();
   }
   event.Skip();
 }

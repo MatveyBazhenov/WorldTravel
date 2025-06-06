@@ -1,10 +1,6 @@
 #include "ResultPanel.hpp"
+#include "AccountPanel.hpp"
 #include "FindPanel.hpp"
-#include "UserData.hpp"
-#include <wx/log.h>
-
-#include "FindPanel.hpp"
-#include "ResultPanel.hpp"
 #include "UserData.hpp"
 #include <wx/log.h>
 #include <wx/statline.h>
@@ -77,7 +73,6 @@ ResultPanel::ResultPanel(wxNotebook *parent, const std::string &responseData)
   btnDescribtion->Bind(wxEVT_BUTTON, &ResultPanel::OnShowDescription, this);
   btnBack2->Bind(wxEVT_BUTTON, &ResultPanel::OnBack2, this);
   btnSaveOption1->Bind(wxEVT_BUTTON, &ResultPanel::OnSaveOption1, this);
-  btnSaveAll->Bind(wxEVT_BUTTON, &ResultPanel::OnSaveAll, this);
 }
 
 void ResultPanel::OnBack2(wxCommandEvent &event) {
@@ -87,13 +82,73 @@ void ResultPanel::OnBack2(wxCommandEvent &event) {
 }
 
 void ResultPanel::OnSaveOption1(wxCommandEvent &event) {
-  UserData::GetInstance().AddDrive(btnOption1->GetLabel().ToStdString());
-}
+  wxString token = UserData::GetInstance().GetUsername();
+  if (token.empty()) {
+    wxMessageBox("Требуется авторизация", "Ошибка", wxICON_ERROR);
+    return;
+  }
 
-void ResultPanel::OnSaveAll(wxCommandEvent &event) {
-  UserData::GetInstance().AddDrive("Все маршруты");
-}
+  if (m_jsonData.is_null()) {
+    wxMessageBox("Нет данных для сохранения", "Ошибка", wxICON_ERROR);
+    return;
+  }
 
+  try {
+    nlohmann::json saveData;
+    saveData["user_key"] = token.ToStdString();
+    saveData["origin_city"] = m_jsonData["origin_city"].get<std::string>();
+    saveData["destination_city"] =
+        m_jsonData["destination_city"].get<std::string>();
+    saveData["origin_IATA"] = m_jsonData["origin_IATA"].get<std::string>();
+    saveData["destination_IATA"] =
+        m_jsonData["destination_IATA"].get<std::string>();
+    saveData["departure_at"] = m_jsonData["departure_at"].get<std::string>();
+    saveData["price"] = m_jsonData["price"].get<int>();
+
+    std::string jsonStr = saveData.dump();
+    wxLogMessage("Отправка JSON: %s", jsonStr);
+
+    wxHTTP http;
+    http.SetHeader("Content-Type", "application/json");
+    http.SetTimeout(10);
+
+    
+    if (!http.Connect("localhost", 8080)) {
+      wxMessageBox("Ошибка подключения к серверу", "Ошибка", wxICON_ERROR);
+      return;
+    }
+
+    wxMemoryBuffer postData;
+    postData.AppendData(jsonStr.c_str(), jsonStr.size());
+    http.SetMethod("POST");
+    http.SetPostBuffer("save-trip", postData);
+    wxInputStream *response = http.GetInputStream("save-trip");
+    int responseCode = http.GetResponse();
+
+    if (response) {
+      if (responseCode == 200) {
+        wxMessageBox("Маршрут сохранён", "Успех", wxICON_INFORMATION);
+        UserData::GetInstance().AddDrive(
+            saveData["origin_city"].get<std::string>() + " → " +
+            saveData["destination_city"].get<std::string>());
+      } else {
+        wxStringOutputStream output;
+        response->Read(output);
+        wxMessageBox("Ошибка сервера: " + wxString::Format("%d\n%s",
+                                                           responseCode,
+                                                           output.GetString()),
+                     "Ошибка", wxICON_ERROR);
+      }
+      delete response;
+    } else {
+      wxMessageBox("Ошибка отправки запроса. Код: " +
+                       wxString::Format("%d", responseCode),
+                   "Ошибка", wxICON_ERROR);
+    }
+  } catch (const std::exception &e) {
+    wxMessageBox("Ошибка: " + wxString(e.what()), "Ошибка", wxICON_ERROR);
+  }
+}
 void ResultPanel::OnShowDescription(wxCommandEvent &event) {
   wxDialog *dialog = new wxDialog(this, wxID_ANY, "Достопримечательности",
                                   wxDefaultPosition, wxSize(500, 400));

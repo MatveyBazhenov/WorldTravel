@@ -27,7 +27,7 @@ AccountPanel::AccountPanel(wxNotebook *parent) : wxPanel(parent, wxID_ANY) {
   this->Fit();
   btnExit->Bind(wxEVT_BUTTON, &AccountPanel::OnExit, this);
   btnBack->Bind(wxEVT_BUTTON, &AccountPanel::OnBack, this);
-  UpdateDriveButtons();
+  UpdateRouteButtons();
 }
 
 void AccountPanel::OnExit(wxCommandEvent &event) {
@@ -37,7 +37,9 @@ void AccountPanel::OnExit(wxCommandEvent &event) {
   }
   LeftPanel *leftPanel = new LeftPanel(parentNotebook);
   parentNotebook->AddPage(leftPanel, "Выход", true);
-  UserData::GetInstance().DestroyToken();
+
+  UserData::GetInstance().ClearRoutes();
+  UserData::GetInstance().DestroyUserKey();
 }
 
 void AccountPanel::OnBack(wxCommandEvent &event) {
@@ -49,24 +51,31 @@ void AccountPanel::OnBack(wxCommandEvent &event) {
   parentNotebook->AddPage(findPanel, "Поиск", true);
 }
 
-void AccountPanel::UpdateDriveButtons() {
-  for (auto *btn : driveButtons) {
+void AccountPanel::UpdateRouteButtons() {
+  for (auto *btn : routeButtons) {
     btn->Destroy();
   }
-  driveButtons.clear();
-  centerSizer5->Clear();
-  const auto &drives = UserData::GetInstance().GetDrives();
-  for (const auto &drive : drives) {
-    wxButton *btn = new wxButton(this, wxID_ANY, drive);
-    btn->SetMinSize(wxSize(200, 100));
+  routeButtons.clear();
+  centerSizer5->Clear(true);
+  const auto &routes = UserData::GetInstance().GetRoutes();
+
+  for (const auto &route : routes) {
+    wxButton *btn = new wxButton(this, wxID_ANY, route.ToString());
+    btn->SetMinSize(wxSize(300, 100));
     centerSizer5->Add(btn, 0, wxALIGN_CENTER | wxALL, 5);
-    driveButtons.push_back(btn);
+    routeButtons.push_back(btn);
+
+    btn->Bind(wxEVT_BUTTON, [this, route](wxCommandEvent &) {
+      wxMessageBox(route.ToString(), "Детали маршрута");
+    });
   }
+
   centerSizer5->Layout();
   Layout();
   Fit();
 }
 
-void AccountPanel::RefreshDrives() { UpdateDriveButtons(); }
+void AccountPanel::RefreshRoutes() { UpdateRouteButtons(); }
+
 
 AccountPanel::~AccountPanel() {}

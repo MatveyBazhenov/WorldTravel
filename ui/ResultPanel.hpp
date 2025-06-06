@@ -2,11 +2,16 @@
 #define RESULTPANEL_HPP
 
 #include <nlohmann/json.hpp>
+#include <wx/buffer.h>
 #include <wx/button.h>
 #include <wx/intl.h>
+#include <wx/mstream.h>
 #include <wx/notebook.h>
 #include <wx/panel.h>
+#include <wx/protocol/http.h>
 #include <wx/sizer.h>
+#include <wx/socket.h>
+#include <wx/sstream.h>
 #include <wx/statline.h>
 #include <wx/wx.h>
 
@@ -44,7 +49,6 @@ private:
   wxBoxSizer *bottomSizer;
   void OnSaveOption1(wxCommandEvent &event);
   void OnSaveOption2(wxCommandEvent &event);
-  void OnSaveAll(wxCommandEvent &event);
 };
 
 #endif
