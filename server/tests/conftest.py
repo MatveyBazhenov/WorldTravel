@@ -9,20 +9,21 @@ from testsuite import utils
 pytest_plugins = ['pytest_userver.plugins.postgresql',
                  'pytest_userver.plugins.core']
 
-USERVER_CONFIG_HOOKS = ['userver_config_Aviasales']
+USERVER_CONFIG_HOOKS = ['userver_config_mockserver']
 
 @pytest.fixture(scope='session')
-def userver_config_Aviasales(mockserver_info):
+def userver_config_mockserver(mockserver_info):
     def do_patch(config_yaml, config_vars):
         components = config_yaml['components_manager']['components']
         components['aviasales-api']['url-IATA'] = mockserver_info.url('iata')
         components['aviasales-api']['url-aviasales'] = mockserver_info.url('prices')
-    
+        components['yandexgpt-api']['url'] = mockserver_info.url('gpt')
+
     return do_patch
 
 
 @pytest.fixture(autouse=True)
-def mock_aviasales(mockserver):
+def mockserver(mockserver):
     @mockserver.json_handler('/iata')
     def mock_iata(request):
         return {
@@ -31,7 +32,7 @@ def mock_aviasales(mockserver):
             }
     
     @mockserver.json_handler('/prices')
-    def mock_prices(request):
+    def mock_tickets(request):
         return {
             "data": [{
                     "flight_number":"5806",
@@ -56,7 +57,31 @@ def mock_aviasales(mockserver):
                 "currency":"rub",
                 "success": True
             }
-    return mock_iata, mock_prices
+
+    @mockserver.json_handler('/gpt')
+    def mock_gpt(request):
+        return {
+            "result": {
+                "alternatives": [
+                    {
+                        "message": {
+                            "text": '''
+                            [
+                                {"name": "Площадь Ленина", "description": "Центральная площадь Хабаровска."},
+                                {"name": "Утёс", "description": "Смотровая площадка на Амур."},
+                                {"name": "Краевой музей им. Гродекова", "description": "Исторический музей региона."},
+                                {"name": "Парк Северный", "description": "Зелёная зона отдыха."},
+                                {"name": "Набережная Амура", "description": "Живописное место для прогулок."}
+                            ]
+                            '''
+                        }
+                    }
+                ]
+            }
+        }
+
+    return mockserver
+
 
 @pytest.fixture(scope='session')
 def service_source_dir():
@@ -90,30 +115,3 @@ def userver_config_GPT(mockserver_info):
 
 
 USERVER_CONFIG_HOOKS.append('userver_config_GPT')
-
-@pytest.fixture(autouse=True)
-def mock_gpt(mockserver):
-    @mockserver.json_handler('/gpt')
-    def mock_response(request):
-        return {
-            "result": {
-                "alternatives": [
-                    {
-                        "message": {
-                            "text": '''
-                            [
-                                {"name": "Площадь Ленина", "description": "Центральная площадь Хабаровска."},
-                                {"name": "Утёс", "description": "Смотровая площадка на Амур."},
-                                {"name": "Краевой музей им. Гродекова", "description": "Исторический музей региона."},
-                                {"name": "Парк Северный", "description": "Зелёная зона отдыха."},
-                                {"name": "Набережная Амура", "description": "Живописное место для прогулок."}
-                            ]
-                            '''
-                        }
-                    }
-                ]
-            }
-        }
-
-    return mock_response
-
