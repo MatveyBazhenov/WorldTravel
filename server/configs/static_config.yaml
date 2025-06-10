@@ -87,6 +87,11 @@ components_manager:
             path: /save-trip
             method: POST
             task_processor: main-task-processor
+        
+        handler-account:
+            path: /account
+            method: GET
+            task_processor: main-task-processor
             
         postgres-db-1:
             dbconnection: $dbconnection
