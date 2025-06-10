@@ -59,8 +59,8 @@ async def test_trip_data_in_table(service_client, pgsql):
     assert response.status == 200
     cursor.execute('SELECT * FROM WorldTravel.trips;')
     row = cursor.fetchone()
-    assert row[0] == 1
-    assert row[1] == '1111aaaa2222bbbb3333cccc4444'
+    assert row[1] == 1
+    assert row[0] == '1111aaaa2222bbbb3333cccc4444'
     assert row[2] == 'Start-city'
     assert row[3] == 'Finish-city'
     assert row[4] == 'STR'
@@ -116,8 +116,8 @@ async def test_two_trips(service_client, pgsql):
 
     cursor.execute('SELECT * FROM WorldTravel.trips;')
     rows = cursor.fetchall()
-    assert rows[0][0] == 1
-    assert rows[0][1] == '1111aaaa2222bbbb3333cccc4444'
+    assert rows[0][1] == 1
+    assert rows[0][0] == '1111aaaa2222bbbb3333cccc4444'
     assert rows[0][2] == 'First-start-city'
     assert rows[0][3] == 'First-finish-city'
     assert rows[0][4] == 'STR1'
@@ -126,8 +126,8 @@ async def test_two_trips(service_client, pgsql):
     assert rows[0][7] == 11111
     assert json.loads(rows[0][8]) == first_description
 
-    assert rows[1][0] == 2
-    assert rows[1][1] == '1111aaaa2222bbbb3333cccc4444'
+    assert rows[1][1] == 2
+    assert rows[1][0] == '1111aaaa2222bbbb3333cccc4444'
     assert rows[1][2] == 'Second-start-city'
     assert rows[1][3] == 'Second-finish-city'
     assert rows[1][4] == 'STR2'
