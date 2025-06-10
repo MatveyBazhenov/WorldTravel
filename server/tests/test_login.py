@@ -2,6 +2,7 @@ import pytest
 from testsuite.databases import pgsql
 import uuid
 
+
 @pytest.mark.pgsql('db_1')
 async def test_successful_login(service_client, pgsql):
     cursor = pgsql['db_1'].cursor()
@@ -14,13 +15,14 @@ async def test_successful_login(service_client, pgsql):
         '/login',
         json={'login': 'existing_user', 'password': 'correct_password'}
     )
-    
+
     assert response.status == 200
     body = response.json()
     assert "status" in body
     assert body["status"] == "ok"
     assert "user_key" in body
     assert body["user_key"] == "1111aaaa2222bbbb3333cccc4444"
+
 
 @pytest.mark.pgsql('db_1', files=['initial_data.sql'])
 async def test_user_not_found(service_client):
@@ -33,6 +35,7 @@ async def test_user_not_found(service_client):
         "status": "error",
         "message": "Unknown user."
     }
+
 
 @pytest.mark.pgsql('db_1')
 async def test_wrong_password(service_client, pgsql):
@@ -51,6 +54,7 @@ async def test_wrong_password(service_client, pgsql):
         "status": "error",
         "message": "Incorrect password."
     }
+
 
 @pytest.mark.pgsql('db_1', files=['initial_data.sql'])
 async def test_too_long_password(service_client):
