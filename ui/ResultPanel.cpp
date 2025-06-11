@@ -104,25 +104,31 @@ void ResultPanel::OnSaveOption1(wxCommandEvent &event) {
         m_jsonData["destination_IATA"].get<std::string>();
     saveData["departure_at"] = m_jsonData["departure_at"].get<std::string>();
     saveData["price"] = m_jsonData["price"].get<int>();
-
+    if (m_jsonData.contains("description") &&
+        m_jsonData["description"].is_object()) {
+      saveData["description_city"] = m_jsonData["description"].dump();
+    } else {
+      saveData["description_city"] = "";
+    }
     std::string jsonStr = saveData.dump();
     wxLogMessage("Отправка JSON: %s", jsonStr);
 
     wxHTTP http;
     http.SetHeader("Content-Type", "application/json");
+    http.SetHeader("Connection", "close");
     http.SetTimeout(10);
 
-    
     if (!http.Connect("localhost", 8080)) {
       wxMessageBox("Ошибка подключения к серверу", "Ошибка", wxICON_ERROR);
       return;
     }
-
+    http.SetMethod("POST");
     wxMemoryBuffer postData;
     postData.AppendData(jsonStr.c_str(), jsonStr.size());
-    http.SetMethod("POST");
-    http.SetPostBuffer("save-trip", postData);
-    wxInputStream *response = http.GetInputStream("save-trip");
+    http.SetPostBuffer("application/json", postData);
+
+    wxString path = "/save-trip";
+    wxInputStream *response = http.GetInputStream(path);
     int responseCode = http.GetResponse();
 
     if (response) {
@@ -132,12 +138,13 @@ void ResultPanel::OnSaveOption1(wxCommandEvent &event) {
             saveData["origin_city"].get<std::string>() + " → " +
             saveData["destination_city"].get<std::string>());
       } else {
-        wxStringOutputStream output;
-        response->Read(output);
-        wxMessageBox("Ошибка сервера: " + wxString::Format("%d\n%s",
-                                                           responseCode,
-                                                           output.GetString()),
-                     "Ошибка", wxICON_ERROR);
+        wxString errorMsg = wxString::Format("HTTP error %d\n", responseCode);
+        if (response->CanRead()) {
+          wxStringOutputStream out;
+          response->Read(out);
+          errorMsg += "Response: " + out.GetString();
+        }
+        wxMessageBox(errorMsg, "Ошибка сервера", wxICON_ERROR);
       }
       delete response;
     } else {
@@ -146,9 +153,11 @@ void ResultPanel::OnSaveOption1(wxCommandEvent &event) {
                    "Ошибка", wxICON_ERROR);
     }
   } catch (const std::exception &e) {
-    wxMessageBox("Ошибка: " + wxString(e.what()), "Ошибка", wxICON_ERROR);
+    wxMessageBox("Ошибка при сохранении маршрута: " + wxString(e.what()),
+                 "Ошибка", wxICON_ERROR);
   }
 }
+
 void ResultPanel::OnShowDescription(wxCommandEvent &event) {
   wxDialog *dialog = new wxDialog(this, wxID_ANY, "Достопримечательности",
                                   wxDefaultPosition, wxSize(500, 400));

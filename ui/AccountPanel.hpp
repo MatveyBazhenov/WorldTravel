@@ -7,7 +7,22 @@
 #include <wx/intl.h>
 #include <wx/notebook.h>
 #include <wx/panel.h>
+#include <wx/protocol/http.h> // Add HTTP client
 #include <wx/wx.h>
+
+struct Trip {
+  int trip_id;
+  wxString origin_city;
+  wxString destination_city;
+  wxString origin_IATA;
+  wxString destination_IATA;
+  wxString departure_at;
+  int price;
+
+  wxString ToString() const {
+    return origin_city + " → " + destination_city + " (" + departure_at + ")";
+  }
+};
 
 const int ID_DRIVE1 = wxID_HIGHEST + 19;
 const int ID_DRIVE2 = wxID_HIGHEST + 20;
@@ -38,7 +53,10 @@ private:
   void OnExit(wxCommandEvent &event);
   void OnBack(wxCommandEvent &event);
   std::vector<wxButton *> driveButtons;
-  void UpdateDriveButtons();
+  std::vector<Trip> trips_; // Replace routes with trips
+
+  void FetchTripsFromServer();
+  void ParseJSONResponse(const wxString &response);
 };
 
 #endif

@@ -4,6 +4,7 @@
 #include <nlohmann/json.hpp>
 #include <wx/buffer.h>
 #include <wx/button.h>
+#include <wx/defs.h>
 #include <wx/intl.h>
 #include <wx/mstream.h>
 #include <wx/notebook.h>
