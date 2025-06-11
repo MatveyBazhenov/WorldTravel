@@ -65,7 +65,7 @@ void AccountPanel::ParseJSONResponse(const wxString &response) {
 }
 
 void AccountPanel::FetchTripsFromServer() {
-  wxString userKey = UserData::GetInstance().GetUserKey();
+  wxString userKey = UserData::GetInstance().GetUsername();
   if (userKey.empty()) {
     wxMessageBox("User key is missing", "Error", wxICON_ERROR);
     return;
