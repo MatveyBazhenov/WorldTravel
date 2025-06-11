@@ -1,4 +1,5 @@
 #include "EnterWindow.hpp"
+#include "FindPanel.hpp"
 #include "UserData.hpp"
 
 wxBEGIN_EVENT_TABLE(EnterWindow, wxFrame)
@@ -129,6 +130,9 @@ void EnterWindow::OnEnter(wxCommandEvent &event) {
           UserData::GetInstance().SetUsername(token);
           CustomMessageBox(this, "Успешный вход!\nЗдравствуйте, " + login,
                            "Успех", "../images/Om_Nom_happy_200x200.png");
+          FindPanel *find = new FindPanel(nullptr);
+          find->Show(true);
+          this->Destroy();
         }
         break;
       }
