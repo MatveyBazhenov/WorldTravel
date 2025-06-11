@@ -2,6 +2,7 @@
 #define RESULTPANEL_HPP
 
 #include <nlohmann/json.hpp>
+#include <wx/defs.h>
 #include <wx/buffer.h>
 #include <wx/button.h>
 #include <wx/defs.h>
