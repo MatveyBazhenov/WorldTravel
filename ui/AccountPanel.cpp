@@ -2,6 +2,7 @@
 #include "FindPanel.hpp"
 #include "LeftPanel.hpp"
 #include "UserData.hpp"
+#include <iostream>
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
@@ -29,7 +30,6 @@ AccountPanel::AccountPanel(wxNotebook *parent) : wxPanel(parent, wxID_ANY) {
   this->Fit();
   btnExit->Bind(wxEVT_BUTTON, &AccountPanel::OnExit, this);
   btnBack->Bind(wxEVT_BUTTON, &AccountPanel::OnBack, this);
-  FetchTripsFromServer();
 }
 
 void AccountPanel::ParseJSONResponse(const wxString &response) {
@@ -67,6 +67,7 @@ void AccountPanel::ParseJSONResponse(const wxString &response) {
 void AccountPanel::FetchTripsFromServer() {
   wxString userKey = UserData::GetInstance().GetUsername();
   if (userKey.empty()) {
+    std::cout << "pizda huy" << std::endl;
     wxMessageBox("User key is missing", "Error", wxICON_ERROR);
     return;
   }

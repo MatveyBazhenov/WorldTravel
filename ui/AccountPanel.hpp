@@ -57,6 +57,12 @@ private:
 
   void FetchTripsFromServer();
   void ParseJSONResponse(const wxString &response);
-};
 
+  void OnShow(wxShowEvent &event) {
+    if (event.IsShown()) {
+      FetchTripsFromServer();
+    }
+    event.Skip();
+  }
+};
 #endif
