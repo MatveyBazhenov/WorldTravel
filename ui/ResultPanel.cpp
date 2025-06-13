@@ -33,7 +33,7 @@ ResultPanel::ResultPanel(wxNotebook *parent, const std::string &responseData)
   wxStaticText *ticketInfo = new wxStaticText(this, wxID_ANY, "");
   ticketInfo->SetFont(
       wxFont(12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD));
-
+  ticketInfo->SetForegroundColour(wxColour(0, 0, 0));
   if (!m_jsonData.is_null()) {
     wxString infoText =
         wxString::Format("Информация о билете:\n\n"
@@ -76,13 +76,11 @@ ResultPanel::ResultPanel(wxNotebook *parent, const std::string &responseData)
 }
 
 void ResultPanel::OnBack2(wxCommandEvent &event) {
-  wxNotebook *parentNotebook = static_cast<wxNotebook *>(GetParent());
-  FindPanel *findPanel = new FindPanel(parentNotebook);
-  parentNotebook->AddPage(findPanel, "Поиск", true);
+  static_cast<wxNotebook *>(GetParent())->SetSelection(1);
 }
 
 void ResultPanel::OnSaveOption1(wxCommandEvent &event) {
-  wxString token = UserData::GetInstance().GetUsername();
+  wxString token = UserData::GetInstance().GetUserKey();
   if (token.empty()) {
     wxMessageBox("Требуется авторизация", "Ошибка", wxICON_ERROR);
     return;
@@ -111,7 +109,6 @@ void ResultPanel::OnSaveOption1(wxCommandEvent &event) {
       saveData["description_city"] = "";
     }
     std::string jsonStr = saveData.dump();
-    wxLogMessage("Отправка JSON: %s", jsonStr);
 
     wxHTTP http;
     http.SetHeader("Content-Type", "application/json");
@@ -160,17 +157,13 @@ void ResultPanel::OnSaveOption1(wxCommandEvent &event) {
 
 void ResultPanel::OnShowDescription(wxCommandEvent &event) {
   wxDialog *dialog = new wxDialog(this, wxID_ANY, "Достопримечательности",
-                                  wxDefaultPosition, wxSize(500, 400));
+                                  wxDefaultPosition, wxSize(1000, 1000));
   dialog->SetBackgroundColour(wxColour(242, 242, 242));
 
   wxScrolledWindow *scrolled = new wxScrolledWindow(
       dialog, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxVSCROLL);
   wxBoxSizer *dialogSizer = new wxBoxSizer(wxVERTICAL);
   wxBoxSizer *contentSizer = new wxBoxSizer(wxVERTICAL);
-
-  wxLogMessage("Проверка наличия описания: %d",
-               !m_jsonData.is_null() && m_jsonData.contains("description") &&
-                   m_jsonData["description"].is_object());
 
   if (!m_jsonData.is_null() && m_jsonData.contains("description") &&
       m_jsonData["description"].is_object()) {

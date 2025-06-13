@@ -40,7 +40,7 @@ private:
   wxBitmap m_backgroundBitmap;
   wxBitmap m_backgroundBitmap2;
 
-  void OnFindClick(wxMouseEvent &event);
+  void OnFindClick(wxCommandEvent &event);
   void OnSize(wxSizeEvent &event);
   void OnAccountClick(wxMouseEvent &event);
   static size_t WriteCallback(void *contents, size_t size, size_t nmemb,
