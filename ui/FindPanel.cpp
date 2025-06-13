@@ -14,9 +14,7 @@ FindPanel::FindPanel(wxNotebook *parent) : wxPanel(parent, wxID_ANY) {
   wxBoxSizer *contentSizer = new wxBoxSizer(wxVERTICAL);
   verticalSizer->Add(contentSizer, 1, wxEXPAND);
 
-  wxFont btnFont(wxFontInfo(12)
-                     .Family(wxFONTFAMILY_SWISS)
-                     .FaceName("Roboto"));
+  wxFont btnFont(wxFontInfo(12).Family(wxFONTFAMILY_SWISS).FaceName("Roboto"));
 
   this->SetBackgroundColour(wxColour(242, 242, 242));
   Bind(wxEVT_SIZE, &FindPanel::OnSize, this);
@@ -218,10 +216,7 @@ size_t FindPanel::WriteCallback(void *contents, size_t size, size_t nmemb,
 }
 
 void FindPanel::OnAccountClick(wxMouseEvent &event) {
-  wxNotebook *parentNotebook = static_cast<wxNotebook *>(GetParent());
-  parentNotebook->DeleteAllPages();
-  parentNotebook->AddPage(new AccountPanel(parentNotebook), "Личный кабинет",
-                          true);
+  static_cast<wxNotebook *>(GetParent())->SetSelection(2);
 }
 
 void FindPanel::OnSize(wxSizeEvent &event) {

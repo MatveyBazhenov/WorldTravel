@@ -64,7 +64,7 @@ void AccountPanel::ParseJSONResponse(const wxString &response) {
 }
 
 void AccountPanel::FetchTripsFromServer() {
-  wxString userKey = UserData::GetInstance().GetUsername();
+  wxString userKey = UserData::GetInstance().GetUserKey();
   if (userKey.empty()) {
     wxMessageBox("User key is missing", "Error", wxICON_ERROR);
     return;
@@ -136,24 +136,13 @@ void AccountPanel::UpdateRouteButtons() {
 }
 
 void AccountPanel::OnExit(wxCommandEvent &event) {
-  wxNotebook *parentNotebook = static_cast<wxNotebook *>(GetParent());
-  while (parentNotebook->GetPageCount() > 0) {
-    parentNotebook->DeletePage(0);
-  }
-  LeftPanel *leftPanel = new LeftPanel(parentNotebook);
-  parentNotebook->AddPage(leftPanel, "Выход", true);
-
+  static_cast<wxNotebook *>(GetParent())->SetSelection(0);
   UserData::GetInstance().ClearRoutes();
   UserData::GetInstance().DestroyUserKey();
 }
 
 void AccountPanel::OnBack(wxCommandEvent &event) {
-  wxNotebook *parentNotebook = static_cast<wxNotebook *>(GetParent());
-  while (parentNotebook->GetPageCount() > 0) {
-    parentNotebook->DeletePage(0);
-  }
-  FindPanel *findPanel = new FindPanel(parentNotebook);
-  parentNotebook->AddPage(findPanel, "Поиск", true);
+  static_cast<wxNotebook *>(GetParent())->SetSelection(1);
 }
 
 void AccountPanel::RefreshRoutes() {

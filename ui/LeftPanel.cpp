@@ -6,7 +6,6 @@ LeftPanel::LeftPanel(wxNotebook *parent)
     : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize,
               wxBORDER_SUNKEN) {
   _locale.Init(wxLANGUAGE_RUSSIAN);
-
   this->SetBackgroundColour(wxColour(242, 242, 242)); // светло-серый фон
   if (!m_backgroundBitmap.LoadFile("../images/background1.jpg",
                                    wxBITMAP_TYPE_JPEG)) {
@@ -53,9 +52,7 @@ LeftPanel::LeftPanel(wxNotebook *parent)
   separatorSizer->Add(lblOr, 0, wxALIGN_CENTER);
   separatorSizer->Add(lineRight, 1, wxEXPAND | wxLEFT, 5);
 
-  wxFont btnFont(wxFontInfo(16)
-                     .Family(wxFONTFAMILY_SWISS)
-                     .FaceName("Roboto"));
+  wxFont btnFont(wxFontInfo(16).Family(wxFONTFAMILY_SWISS).FaceName("Roboto"));
   btnIn->SetFont(btnFont);
   btnReg->SetFont(btnFont);
   btnIn->SetForegroundColour(*wxWHITE);

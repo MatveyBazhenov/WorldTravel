@@ -127,12 +127,10 @@ void EnterWindow::OnEnter(wxCommandEvent &event) {
                            "Ошибка", "../images/Om_Nom_sad_200x200.png");
         } else {
           // Сохраняем токен
-          UserData::GetInstance().SetUsername(token);
+          UserData::GetInstance().SetUserKey(token);
           CustomMessageBox(this, "Успешный вход!\nЗдравствуйте, " + login,
                            "Успех", "../images/Om_Nom_happy_200x200.png");
-          wxNotebook *notebook = new wxNotebook(this, wxID_ANY);
-          FindPanel *find = new FindPanel(notebook);
-          find->Show(true);
+          static_cast<wxNotebook *>(GetParent())->SetSelection(1);
           this->Destroy();
         }
         break;

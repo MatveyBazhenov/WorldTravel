@@ -14,6 +14,7 @@ wxIMPLEMENT_APP(MyApp);
 bool MyApp::OnInit() {
   wxSocketBase::Initialize();
   MainWin *mainWin = new MainWin();
+  mainWin->SetSize(wxGetDisplaySize());
   mainWin->Show(true);
   return true;
 }
