@@ -1,6 +1,9 @@
 import pytest
 from testsuite.databases import pgsql
 import json
+import asyncio
+import time
+import random
 
 
 @pytest.mark.pgsql('db_1')
@@ -135,3 +138,39 @@ async def test_two_trips(service_client, pgsql):
     assert rows[1][6] == '2025-20-20T17:20:00+03:00'
     assert rows[1][7] == 22222
     assert json.loads(rows[1][8]) == second_description
+
+
+async def test_time_save_trip(service_client, pgsql):
+    cursor = pgsql['db_1'].cursor()
+    cursor.execute(
+    "INSERT INTO WorldTravel.users (username, password, user_key) VALUES (%s, %s, %s)",
+    ('existing_user', 'correct_password', '1111aaaa2222bbbb3333cccc4444')
+    )
+    async def save_trip() -> bool:
+        response = await service_client.post(
+            '/save-trip',
+            json={
+                "user_key": "1111aaaa2222bbbb3333cccc4444",
+                "origin_city": "Start-city",
+                "destination_city": "Finish-city",
+                "origin_IATA": "STR",
+                "destination_IATA": "FIN",
+                "departure_at": "2025-10-10T17:20:00+03:00",
+                "price": 25000,
+                "description_city": json.dumps({
+                    "Big Ben": "Clock tower",
+                    "London Eye": "Ferris wheel"
+                })
+            },
+        )
+        return response.status == 200
+    
+    # Для проверки времени работы
+    # start_time = time.time()
+    # await asyncio.gather(
+    #     *(save_trip() for _ in range(5000))
+    # )
+    # final_time = time.time() - start_time
+
+    # max_duration = 100.0  
+    # assert (final_time > max_duration)
