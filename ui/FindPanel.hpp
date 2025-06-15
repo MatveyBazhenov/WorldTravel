@@ -8,9 +8,9 @@
 #include <wx/button.h>
 #include <wx/calctrl.h>
 #include <wx/datectrl.h>
-#include <wx/notebook.h>
 #include <wx/panel.h>
 #include <wx/protocol/http.h>
+#include <wx/simplebook.h>
 #include <wx/spinctrl.h>
 #include <wx/sstream.h>
 #include <wx/textctrl.h>
@@ -21,7 +21,7 @@ const int ID_ACCOUNT = wxID_HIGHEST + 21;
 
 class FindPanel : public wxPanel {
 public:
-  FindPanel(wxNotebook *parent);
+  FindPanel(wxSimplebook *parent);
   ~FindPanel();
 
 private:

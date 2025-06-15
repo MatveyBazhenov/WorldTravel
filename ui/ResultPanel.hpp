@@ -2,15 +2,14 @@
 #define RESULTPANEL_HPP
 
 #include <nlohmann/json.hpp>
-#include <wx/defs.h>
 #include <wx/buffer.h>
 #include <wx/button.h>
 #include <wx/defs.h>
 #include <wx/intl.h>
 #include <wx/mstream.h>
-#include <wx/notebook.h>
 #include <wx/panel.h>
 #include <wx/protocol/http.h>
+#include <wx/simplebook.h>
 #include <wx/sizer.h>
 #include <wx/socket.h>
 #include <wx/sstream.h>
@@ -28,9 +27,9 @@ const int ID_SAVEOPTION2 = wxID_HIGHEST + 8;
 
 class ResultPanel : public wxPanel {
 public:
-  ResultPanel(wxNotebook *parent);
+  ResultPanel(wxSimplebook *parent);
   ~ResultPanel();
-  ResultPanel(wxNotebook *parent, const std::string &responseData);
+  ResultPanel(wxSimplebook *parent, const std::string &responseData);
 
 private:
   wxLocale _locale;

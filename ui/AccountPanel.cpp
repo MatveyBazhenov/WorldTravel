@@ -1,34 +1,80 @@
 #include "AccountPanel.hpp"
 #include "FindPanel.hpp"
 #include "LeftPanel.hpp"
+#include "RoundedButton.hpp"
 #include "UserData.hpp"
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
-AccountPanel::AccountPanel(wxNotebook *parent) : wxPanel(parent, wxID_ANY) {
+AccountPanel::AccountPanel(wxSimplebook *parent) : wxPanel(parent, wxID_ANY) {
   _locale.Init(wxLANGUAGE_RUSSIAN);
   this->SetBackgroundColour(wxColour(242, 242, 242));
 
   mainSizer5 = new wxBoxSizer(wxVERTICAL);
   centerSizer5 = new wxFlexGridSizer(3, 10, 10);
   topSizer5 = new wxBoxSizer(wxHORIZONTAL);
-  wxBoxSizer *topSizer5 = new wxBoxSizer(wxHORIZONTAL);
+
+  wxFont btnFont(wxFontInfo(12).Family(wxFONTFAMILY_SWISS).FaceName("Roboto"));
+
+  wxBitmap mapBitmap;
+  if (mapBitmap.LoadFile("../images/map.png", wxBITMAP_TYPE_ANY)) {
+    wxImage mapImage = mapBitmap.ConvertToImage();
+    mapImage.Rescale(32, 32, wxIMAGE_QUALITY_HIGH);
+    mapBitmap = wxBitmap(mapImage);
+
+    btnBack = new wxButton(this, ID_BACK, " Обратно к поиску",
+                           wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
+    btnBack->SetBitmap(mapBitmap);
+  } else {
+    btnBack = new wxButton(this, ID_BACK, "Обратно к поиску");
+  }
+  btnBack->SetFont(btnFont);
+  btnBack->SetBackgroundColour(wxColour(242, 242, 242));
+  btnBack->SetForegroundColour(*wxBLACK);
+
+  wxBitmap userBitmap;
+  if (userBitmap.LoadFile("../images/user.png", wxBITMAP_TYPE_ANY)) {
+    btnExit = new wxButton(this, ID_EXIT, " Выйти из профиля",
+                           wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
+    btnExit->SetBitmap(userBitmap);
+  } else {
+    btnExit = new wxButton(this, ID_EXIT, "Выйти из профиля");
+  }
+  btnExit->SetFont(btnFont);
+  btnExit->SetBackgroundColour(wxColour(242, 242, 242));
+  btnExit->SetForegroundColour(*wxBLACK);
 
   wxString username = UserData::GetInstance().GetUsername();
-  txtName = new wxTextCtrl(this, ID_NAME, username);
-  txtName->SetEditable(false);
-  btnBack = new wxButton(this, ID_BACK, "Обратно к поиску");
-  btnExit = new wxButton(this, ID_EXIT, "Выйти из профиля");
-  topSizer5->Add(btnBack, 0, wxALL, 5);
-  topSizer5->Add(txtName, 0, wxALL, 5);
-  topSizer5->Add(btnExit, 0, wxALL, 5);
+  txtName = new wxStaticText(this, ID_NAME, username);
+  txtName->SetForegroundColour(*wxBLACK);
+  txtName->SetFont(
+      wxFont(20, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD));
+
+  topSizer5->Add(txtName, 0, wxALIGN_CENTER_VERTICAL | wxLEFT | wxRIGHT, 10);
+  topSizer5->Add(btnBack, 0, wxALIGN_CENTER_VERTICAL | wxLEFT | wxRIGHT, 10);
+  topSizer5->Add(btnExit, 0, wxALIGN_CENTER_VERTICAL | wxLEFT | wxRIGHT, 10);
+
   mainSizer5->Add(topSizer5, 0, wxEXPAND | wxALL, 10);
-  mainSizer5->Add(centerSizer5, 1, wxEXPAND | wxALL, 10);
+
+  wxBoxSizer *centerWrapper = new wxBoxSizer(wxVERTICAL);
+  centerWrapper->AddStretchSpacer();
+  centerWrapper->Add(centerSizer5, 0, wxALIGN_CENTER);
+  centerWrapper->AddStretchSpacer();
+
+  mainSizer5->Add(centerWrapper, 1, wxEXPAND | wxALL, 10);
+
   this->SetSizer(mainSizer5);
   Center();
   this->Fit();
+
   btnExit->Bind(wxEVT_BUTTON, &AccountPanel::OnExit, this);
   btnBack->Bind(wxEVT_BUTTON, &AccountPanel::OnBack, this);
+  wxSize parentSize = parent->GetClientSize();
+  this->SetSize(parentSize);
+  this->SetMinSize(parentSize);
+  this->Layout();
+  this->Fit();
+  this->Refresh();
 }
 
 void AccountPanel::ParseJSONResponse(const wxString &response) {
@@ -64,6 +110,8 @@ void AccountPanel::ParseJSONResponse(const wxString &response) {
 }
 
 void AccountPanel::FetchTripsFromServer() {
+  username = UserData::GetInstance().GetUsername();
+  txtName->SetLabel(username);
   wxString userKey = UserData::GetInstance().GetUserKey();
   if (userKey.empty()) {
     wxMessageBox("User key is missing", "Error", wxICON_ERROR);
@@ -111,8 +159,10 @@ void AccountPanel::UpdateRouteButtons() {
   centerSizer5->Clear(true);
 
   for (const auto &trip : trips_) {
-    wxButton *btn = new wxButton(this, wxID_ANY, trip.ToString());
-    btn->SetMinSize(wxSize(300, 100));
+    RoundedButton *btn = new RoundedButton(
+        this, wxID_ANY, trip.ToString(), wxColour(255, 255, 255),
+        wxColour(0, 0, 0), 10, wxDefaultPosition, wxSize(300, 100));
+
     centerSizer5->Add(btn, 0, wxALIGN_CENTER | wxALL, 5);
     routeButtons.push_back(btn);
 
@@ -134,19 +184,16 @@ void AccountPanel::UpdateRouteButtons() {
   Layout();
   Fit();
 }
-
 void AccountPanel::OnExit(wxCommandEvent &event) {
-  static_cast<wxNotebook *>(GetParent())->SetSelection(0);
+  static_cast<wxSimplebook *>(GetParent())->SetSelection(0);
   UserData::GetInstance().ClearRoutes();
   UserData::GetInstance().DestroyUserKey();
 }
 
 void AccountPanel::OnBack(wxCommandEvent &event) {
-  static_cast<wxNotebook *>(GetParent())->SetSelection(1);
+  static_cast<wxSimplebook *>(GetParent())->SetSelection(1);
 }
 
-void AccountPanel::RefreshRoutes() {
-  FetchTripsFromServer(); // Refresh data from server
-}
+void AccountPanel::RefreshRoutes() { FetchTripsFromServer(); }
 
 AccountPanel::~AccountPanel() {}

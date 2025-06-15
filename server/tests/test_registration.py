@@ -97,8 +97,6 @@ async def test_empty_password(service_client):
     assert response.status == 400
     assert response.json() == {
         "status": "error", "message": "Invalid username or password. Must be non-empty and up to 50 characters"}
-
-
 @pytest.mark.pgsql('db_1', files=['initial_data.sql'])
 async def test_some_users(service_client):
     response = await service_client.post(
@@ -136,3 +134,34 @@ async def test_some_users(service_client):
     assert response.status == 409
     assert response.json() == {"status": "error",
                                "message": "User first_user already exists"}
+
+import asyncio
+import logging
+import time
+
+async def test_batch_registration(service_client):
+    async def _register_user(user_num: int) -> bool:
+
+        username = f'user_{user_num}_{uuid.uuid4().hex[:8]}'
+        password = f'password_{user_num}'
+
+        request = await service_client.post(
+            '/registration',
+            json={'username': username, 'password': password}
+        )
+        return request.status == 200
+    
+    start_time = time.time()
+
+    results = await asyncio.gather(
+        *(_register_user(i) for i in range(10000))
+    )
+
+    elapsed_time = time.time() - start_time
+    success = sum(results)
+
+    # assert False, f'Total: {elapsed_time} seconds\n Successful registrations: {success}\n Requests per second: {10000 / elapsed_time}'
+    # message after assert False -- Total: 13.196520328521729 seconds Successful registrations: 10000 Requests per second: 757.7755158976971
+
+    assert all(results), f"Not all registrations were successful. only {success} out of 10000"
+    #logging.info(f'Elapsed time: {time.time() - start_time}')

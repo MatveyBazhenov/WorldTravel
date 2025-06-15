@@ -2,7 +2,7 @@
 #include "AccountPanel.hpp"
 #include "ResultPanel.hpp"
 
-FindPanel::FindPanel(wxNotebook *parent) : wxPanel(parent, wxID_ANY) {
+FindPanel::FindPanel(wxSimplebook *parent) : wxPanel(parent, wxID_ANY) {
 
   _locale.Init(wxLANGUAGE_RUSSIAN);
 
@@ -167,7 +167,7 @@ void FindPanel::OnFindClick(wxCommandEvent &event) {
       case 200: {
         nlohmann::json response_json =
             nlohmann::json::parse(response.ToStdString());
-        wxNotebook *parentNotebook = static_cast<wxNotebook *>(GetParent());
+        wxSimplebook *parentNotebook = static_cast<wxSimplebook *>(GetParent());
         ResultPanel *resultPanel =
             new ResultPanel(parentNotebook, response.ToStdString());
         parentNotebook->AddPage(resultPanel, "Результаты", true);
@@ -209,7 +209,7 @@ size_t FindPanel::WriteCallback(void *contents, size_t size, size_t nmemb,
 }
 
 void FindPanel::OnAccountClick(wxMouseEvent &event) {
-  static_cast<wxNotebook *>(GetParent())->SetSelection(2);
+  static_cast<wxSimplebook *>(GetParent())->SetSelection(2);
 }
 
 void FindPanel::OnSize(wxSizeEvent &event) {

@@ -9,7 +9,7 @@ wxBEGIN_EVENT_TABLE(MainWin, wxFrame)
     : wxFrame(NULL, wxID_ANY, "WorldTravel") {
   SetIcon(wxIcon(wxT("../images/logo.png"), wxBITMAP_TYPE_ICO));
   _locale.Init(wxLANGUAGE_RUSSIAN);
-  notebook = new wxNotebook(this, wxID_ANY);
+  notebook = new wxSimplebook(this, wxID_ANY);
   leftPanel = new LeftPanel(notebook);
   FindPanel *findPanel = new FindPanel(notebook); //
 

@@ -2,7 +2,7 @@
 #include "EnterWindow.hpp"
 #include "RegistrationWindow.hpp"
 
-LeftPanel::LeftPanel(wxNotebook *parent)
+LeftPanel::LeftPanel(wxSimplebook *parent)
     : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize,
               wxBORDER_SUNKEN) {
   _locale.Init(wxLANGUAGE_RUSSIAN);
@@ -17,7 +17,6 @@ LeftPanel::LeftPanel(wxNotebook *parent)
   mainSizer3->AddStretchSpacer(1);
   wxBoxSizer *rightSizer = new wxBoxSizer(wxVERTICAL);
 
-  // Заголовок и подзаголовок
   wxStaticText *title = new wxStaticText(this, wxID_ANY, "World Travel");
   title->SetForegroundColour(wxColour(28, 124, 84));
   title->SetFont(

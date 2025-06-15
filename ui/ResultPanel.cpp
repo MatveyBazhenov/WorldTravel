@@ -5,7 +5,7 @@
 #include <wx/log.h>
 #include <wx/statline.h>
 
-ResultPanel::ResultPanel(wxNotebook *parent, const std::string &responseData)
+ResultPanel::ResultPanel(wxSimplebook *parent, const std::string &responseData)
     : wxPanel(parent, wxID_ANY) {
   _locale.Init(wxLANGUAGE_RUSSIAN);
   this->SetBackgroundColour(wxColour(242, 242, 242));
@@ -71,7 +71,7 @@ ResultPanel::ResultPanel(wxNotebook *parent, const std::string &responseData)
 }
 
 void ResultPanel::OnBack2(wxCommandEvent &event) {
-  static_cast<wxNotebook *>(GetParent())->SetSelection(1);
+  static_cast<wxSimplebook *>(GetParent())->SetSelection(1);
 }
 
 void ResultPanel::CustomMessageBox(wxWindow *parent, const wxString &message,

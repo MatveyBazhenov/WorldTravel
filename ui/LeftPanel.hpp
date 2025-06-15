@@ -3,8 +3,8 @@
 
 #include "RoundedButton.hpp"
 #include <wx/button.h>
-#include <wx/notebook.h>
 #include <wx/panel.h>
+#include <wx/simplebook.h>
 #include <wx/statline.h>
 #include <wx/wx.h>
 
@@ -13,7 +13,7 @@ const int ID_REG = wxID_HIGHEST + 13;
 
 class LeftPanel : public wxPanel {
 public:
-  LeftPanel(wxNotebook *parent);
+  LeftPanel(wxSimplebook *parent);
   ~LeftPanel();
 
 private:

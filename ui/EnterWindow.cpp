@@ -118,7 +118,6 @@ void EnterWindow::OnEnter(wxCommandEvent &event) {
 
       switch (responseCode) {
       case 200: { // Success
-        // Извлекаем токен из ответа
         wxString token = ExtractTokenFromResponse(response);
 
         if (token.empty()) {
@@ -126,11 +125,11 @@ void EnterWindow::OnEnter(wxCommandEvent &event) {
           CustomMessageBox(this, "Ошибка: Сервер не вернул токен авторизации",
                            "Ошибка", "../images/Om_Nom_sad_200x200.png");
         } else {
-          // Сохраняем токен
+          UserData::GetInstance().SetUsername(login);
           UserData::GetInstance().SetUserKey(token);
           CustomMessageBox(this, "Успешный вход!\nЗдравствуйте, " + login,
                            "Успех", "../images/Om_Nom_happy_200x200.png");
-          static_cast<wxNotebook *>(GetParent())->SetSelection(1);
+          static_cast<wxSimplebook *>(GetParent())->SetSelection(1);
           this->Destroy();
         }
         break;
