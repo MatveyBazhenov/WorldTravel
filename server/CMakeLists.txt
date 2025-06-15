@@ -14,12 +14,6 @@ userver_setup_environment()
 
 
 # Common sources
-add_library(${PROJECT_NAME}_objs OBJECT
-    src/hello.hpp
-    src/hello.cpp
-)
-target_link_libraries(${PROJECT_NAME}_objs PUBLIC userver::postgresql)
-
 add_library(${PROJECT_NAME}_login OBJECT
     src/login.cpp
     src/login.hpp
@@ -51,22 +45,7 @@ target_link_libraries(${PROJECT_NAME}_acc PUBLIC userver::postgresql)
 
 # The Service
 add_executable(${PROJECT_NAME} src/main.cpp)
-target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_objs ${PROJECT_NAME}_login  ${PROJECT_NAME}_registration ${PROJECT_NAME}_http_client ${PROJECT_NAME}_trips ${PROJECT_NAME}_acc)
-
-# Unit Tests
-add_executable(${PROJECT_NAME}_unittest
-    src/hello_test.cpp
-)
-target_link_libraries(${PROJECT_NAME}_unittest PRIVATE ${PROJECT_NAME}_objs userver::utest)
-add_google_tests(${PROJECT_NAME}_unittest)
-
-
-# Benchmarks
-add_executable(${PROJECT_NAME}_benchmark
-    src/hello_benchmark.cpp
-)
-target_link_libraries(${PROJECT_NAME}_benchmark PRIVATE ${PROJECT_NAME}_objs userver::ubench)
-add_google_benchmark_tests(${PROJECT_NAME}_benchmark)
+target_link_libraries(${PROJECT_NAME} PRIVATE  ${PROJECT_NAME}_login  ${PROJECT_NAME}_registration ${PROJECT_NAME}_http_client ${PROJECT_NAME}_trips ${PROJECT_NAME}_acc)
 
 
 # Functional Tests

@@ -17,14 +17,15 @@
 #include <userver/utils/assert.hpp>
 #include <userver/utils/uuid7.hpp>
 
-namespace service_template {
+namespace my_service {
 
 namespace {
 
 class RegistrationHandler final
     : public userver::server::handlers::HttpHandlerBase {
  public:
-  [[maybe_unused]] static constexpr std::string_view kName = "handler-registration";
+  [[maybe_unused]] static constexpr std::string_view kName =
+      "handler-registration";
 
   RegistrationHandler(
       const userver::components::ComponentConfig& config,
@@ -103,4 +104,4 @@ void AppendRegistration(userver::components::ComponentList& component_list) {
   component_list.Append<RegistrationHandler>();
 }
 
-}  // namespace service_template
+}  // namespace my_service
