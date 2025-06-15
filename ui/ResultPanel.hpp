@@ -50,7 +50,8 @@ private:
   wxGridSizer *centerSizer;
   wxBoxSizer *bottomSizer;
   void OnSaveOption1(wxCommandEvent &event);
-  void OnSaveOption2(wxCommandEvent &event);
+  void CustomMessageBox(wxWindow *parent, const wxString &message,
+                        const wxString &title, const wxString &imagePath);
 };
 
 #endif

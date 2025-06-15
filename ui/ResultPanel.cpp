@@ -23,12 +23,10 @@ ResultPanel::ResultPanel(wxNotebook *parent, const std::string &responseData)
   btnDescribtion =
       new wxButton(this, ID_DESCRIBTION, "Описание достопримечательностей");
   btnBack2 = new wxButton(this, ID_BACK2, "Обратно к поиску");
-  btnSaveAll = new wxButton(this, ID_SAVEALL, "Сохранить все маршруты");
 
   topSizer->Add(btnDescribtion, 0, wxALL, 5);
   topSizer->AddStretchSpacer();
   topSizer->Add(btnBack2, 0, wxALL, 5);
-  topSizer->Add(btnSaveAll, 0, wxALL, 5);
 
   wxStaticText *ticketInfo = new wxStaticText(this, wxID_ANY, "");
   ticketInfo->SetFont(
@@ -51,11 +49,8 @@ ResultPanel::ResultPanel(wxNotebook *parent, const std::string &responseData)
   }
 
   wxGridSizer *centerSizer = new wxGridSizer(2, 1, 10, 10);
-  btnOption1 = new wxButton(this, ID_OPTION1, "Вариант 1");
-  btnOption1->SetMinSize(wxSize(200, 100));
 
   centerSizer->Add(ticketInfo, 0, wxALIGN_CENTER | wxALL, 5);
-  centerSizer->Add(btnOption1, 0, wxALIGN_CENTER | wxALL, 5);
 
   wxBoxSizer *bottomSizer = new wxBoxSizer(wxHORIZONTAL);
   btnSaveOption1 = new wxButton(this, ID_SAVEOPTION1, "Сохранить маршрут");
@@ -79,15 +74,41 @@ void ResultPanel::OnBack2(wxCommandEvent &event) {
   static_cast<wxNotebook *>(GetParent())->SetSelection(1);
 }
 
+void ResultPanel::CustomMessageBox(wxWindow *parent, const wxString &message,
+                                   const wxString &title,
+                                   const wxString &imagePath) {
+  int width = 370;
+  wxDialog dlg(parent, wxID_ANY, title, wxDefaultPosition, wxSize(width, 300));
+
+  wxBoxSizer *mainSizer = new wxBoxSizer(wxVERTICAL);
+
+  wxStaticText *text = new wxStaticText(&dlg, wxID_ANY, message);
+  text->Wrap(width - 20);
+  mainSizer->Add(text, 0, wxALIGN_CENTER | wxALL, 10);
+
+  wxStaticBitmap *bitmap = new wxStaticBitmap(
+      &dlg, wxID_ANY, wxBitmap(imagePath, wxBITMAP_TYPE_PNG));
+  mainSizer->Add(bitmap, 0, wxALIGN_CENTER | wxALL, 10);
+
+  wxButton *okButton = new wxButton(&dlg, wxID_OK, "ОК");
+  mainSizer->Add(okButton, 0, wxALIGN_CENTER | wxALL, 10);
+
+  dlg.SetSizerAndFit(mainSizer);
+  dlg.Centre();
+  dlg.ShowModal();
+}
+
 void ResultPanel::OnSaveOption1(wxCommandEvent &event) {
   wxString token = UserData::GetInstance().GetUserKey();
   if (token.empty()) {
-    wxMessageBox("Требуется авторизация", "Ошибка", wxICON_ERROR);
+    CustomMessageBox(this, "Требуется авторизация", "Ошибка",
+                     "../images/Om_Nom_sad_200x200.png");
     return;
   }
 
   if (m_jsonData.is_null()) {
-    wxMessageBox("Нет данных для сохранения", "Ошибка", wxICON_ERROR);
+    CustomMessageBox(this, "Нет данных для сохранения", "Ошибка",
+                     "../images/Om_Nom_sad_200x200.png");
     return;
   }
 
@@ -116,7 +137,8 @@ void ResultPanel::OnSaveOption1(wxCommandEvent &event) {
     http.SetTimeout(10);
 
     if (!http.Connect("localhost", 8080)) {
-      wxMessageBox("Ошибка подключения к серверу", "Ошибка", wxICON_ERROR);
+      CustomMessageBox(this, "Ошибка подключения к серверу", "Ошибка",
+                       "../images/Om_Nom_sad_200x200.png");
       return;
     }
     http.SetMethod("POST");
@@ -130,7 +152,8 @@ void ResultPanel::OnSaveOption1(wxCommandEvent &event) {
 
     if (response) {
       if (responseCode == 200) {
-        wxMessageBox("Маршрут сохранён", "Успех", wxICON_INFORMATION);
+        CustomMessageBox(this, "Маршрут сохранён", "Успех",
+                         "../images/Om_Nom_happy_200x200.png");
         UserData::GetInstance().AddDrive(
             saveData["origin_city"].get<std::string>() + " → " +
             saveData["destination_city"].get<std::string>());
