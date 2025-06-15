@@ -1,4 +1,6 @@
 #include "EnterWindow.hpp"
+#include "FindPanel.hpp"
+#include "UserData.hpp"
 
 wxBEGIN_EVENT_TABLE(EnterWindow, wxFrame)
     EVT_BUTTON(ID_ENTER, EnterWindow::OnEnter) wxEND_EVENT_TABLE();
@@ -12,9 +14,8 @@ EnterWindow::EnterWindow(wxWindow *parent)
   centsizer = new wxGridSizer(0, 1, 10, 10);
 
   wxStaticText *header = new wxStaticText(this, wxID_ANY, "Вход");
-  wxFont headerFont(wxFontInfo(15)
-                        .Family(wxFONTFAMILY_SWISS)
-                        .FaceName("Roboto"));
+  wxFont headerFont(
+      wxFontInfo(15).Family(wxFONTFAMILY_SWISS).FaceName("Roboto"));
   header->SetFont(headerFont);
   header->SetForegroundColour(wxColour(50, 50, 50));
 
@@ -22,12 +23,14 @@ EnterWindow::EnterWindow(wxWindow *parent)
   txtLogin->SetHint("Логин");
   txtLogin->SetMinSize(wxSize(150, 60));
   txtLogin->SetBackgroundColour(*wxWHITE);
+  txtLogin->SetForegroundColour(*wxBLACK);
 
   txtPassword = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition,
                                wxDefaultSize, wxTE_PASSWORD);
   txtPassword->SetHint("Пароль");
   txtPassword->SetMinSize(wxSize(150, 60));
   txtPassword->SetBackgroundColour(*wxWHITE);
+  txtPassword->SetForegroundColour(*wxBLACK);
 
   btnEnter2 = new RoundedButton(this, ID_ENTER, "Войти",
                                 wxColour(28, 124, 84), // цвет фона
@@ -40,9 +43,7 @@ EnterWindow::EnterWindow(wxWindow *parent)
   centsizer->Add(btnEnter2, 0, wxALIGN_CENTER | wxALL, 5);
 
   // Шрифт кнопок
-  wxFont btnF(wxFontInfo(12)
-                  .Family(wxFONTFAMILY_SWISS)
-                  .FaceName("Roboto"));
+  wxFont btnF(wxFontInfo(12).Family(wxFONTFAMILY_SWISS).FaceName("Roboto"));
   txtPassword->SetFont(btnF);
   btnEnter2->SetFont(btnF);
   txtLogin->SetFont(btnF);
@@ -117,8 +118,20 @@ void EnterWindow::OnEnter(wxCommandEvent &event) {
 
       switch (responseCode) {
       case 200: { // Success
-        CustomMessageBox(this, "Успешный вход!\nЗдравствуйте, " + login,
-                         "Успех", "../images/Om_Nom_happy_200x200.png");
+        wxString token = ExtractTokenFromResponse(response);
+
+        if (token.empty()) {
+          wxLogError("Token not found in server response");
+          CustomMessageBox(this, "Ошибка: Сервер не вернул токен авторизации",
+                           "Ошибка", "../images/Om_Nom_sad_200x200.png");
+        } else {
+          UserData::GetInstance().SetUsername(login);
+          UserData::GetInstance().SetUserKey(token);
+          CustomMessageBox(this, "Успешный вход!\nЗдравствуйте, " + login,
+                           "Успех", "../images/Om_Nom_happy_200x200.png");
+          static_cast<wxSimplebook *>(GetParent())->SetSelection(1);
+          this->Destroy();
+        }
         break;
       }
       case 400: { // Bad Request
@@ -157,4 +170,18 @@ void EnterWindow::OnEnter(wxCommandEvent &event) {
   }
 
   http.Close();
+}
+wxString EnterWindow::ExtractTokenFromResponse(const wxString &response) {
+
+  int start = response.Find("\"user_key\":\"");
+  if (start == wxNOT_FOUND)
+    return wxEmptyString;
+
+  start += 12;
+
+  int end = response.find('"', start);
+  if (end == wxNOT_FOUND)
+    return wxEmptyString;
+
+  return response.SubString(start, end - 1);
 }

@@ -7,56 +7,83 @@ from testsuite import utils
 
 
 pytest_plugins = ['pytest_userver.plugins.postgresql',
-                 'pytest_userver.plugins.core']
+                  'pytest_userver.plugins.core']
 
-USERVER_CONFIG_HOOKS = ['userver_config_Aviasales']
+USERVER_CONFIG_HOOKS = ['userver_config_mockserver']
+
 
 @pytest.fixture(scope='session')
-def userver_config_Aviasales(mockserver_info):
+def userver_config_mockserver(mockserver_info):
     def do_patch(config_yaml, config_vars):
         components = config_yaml['components_manager']['components']
         components['aviasales-api']['url-IATA'] = mockserver_info.url('iata')
-        components['aviasales-api']['url-aviasales'] = mockserver_info.url('prices')
-    
+        components['aviasales-api']['url-aviasales'] = mockserver_info.url(
+            'prices')
+        components['yandexgpt-api']['url'] = mockserver_info.url('gpt')
+
     return do_patch
 
 
 @pytest.fixture(autouse=True)
-def mock_aviasales(mockserver):
+def mockserver(mockserver):
     @mockserver.json_handler('/iata')
     def mock_iata(request):
         return {
-            "origin" :{"iata" : "MOW"},
-            "destination":{"iata" : "KHV"}
-            }
-    
+            "origin": {"iata": "MOW"},
+            "destination": {"iata": "KHV"}
+        }
+
     @mockserver.json_handler('/prices')
-    def mock_prices(request):
+    def mock_tickets(request):
         return {
             "data": [{
-                    "flight_number":"5806",
-                    "link":"/search/MOW1507KHV1?t=SU175260000017526525000004\
+                "flight_number": "5806",
+                "link": "/search/MOW1507KHV1?t=SU175260000017526525000004\
                     55SVOKHV_24c4838cc5a482258fb839f6db95cf22_16530&search_d\
                     ate=16052025&expected_price_uuid=cbff9c76-afaf-48e9-94d4\
                     -1c503908fd00&expected_price_source=share&expected_price\
                     _currency=rub&expected_price=16654",
-                    "origin_airport":"SVO",
-                    "destination_airport":"KHV",
-                    "departure_at":"2025-07-15T17:20:00+03:00",
-                    "airline":"SU",
-                    "destination":"KHV",
-                    "origin":"MOW",
-                    "price":17000,
-                    "return_transfers":0,
-                    "duration":455,
-                    "duration_to":455,
-                    "duration_back":0,
-                    "transfers":0
-                }],
-                "currency":"rub",
-                "success": True
+                "origin_airport": "SVO",
+                "destination_airport": "KHV",
+                "departure_at": "2025-07-15T17:20:00+03:00",
+                "airline": "SU",
+                "destination": "KHV",
+                "origin": "MOW",
+                "price": 17000,
+                "return_transfers": 0,
+                "duration": 455,
+                "duration_to": 455,
+                "duration_back": 0,
+                "transfers": 0
+            }],
+            "currency": "rub",
+            "success": True
+        }
+
+    @mockserver.json_handler('/gpt')
+    def mock_gpt(request):
+        return {
+            "result": {
+                "alternatives": [
+                    {
+                        "message": {
+                            "text": '''
+                            [
+                                {"name": "Площадь Ленина", "description": "Центральная площадь Хабаровска."},
+                                {"name": "Утёс", "description": "Смотровая площадка на Амур."},
+                                {"name": "Краевой музей им. Гродекова", "description": "Исторический музей региона."},
+                                {"name": "Парк Северный", "description": "Зелёная зона отдыха."},
+                                {"name": "Набережная Амура", "description": "Живописное место для прогулок."}
+                            ]
+                            '''
+                        }
+                    }
+                ]
             }
-    return mock_iata, mock_prices
+        }
+
+    return mockserver
+
 
 @pytest.fixture(scope='session')
 def service_source_dir():
@@ -80,3 +107,14 @@ def pgsql_local(service_source_dir, pgsql_local_create):
         [service_source_dir.joinpath('postgresql/schemas')],
     )
     return pgsql_local_create(list(databases.values()))
+
+
+@pytest.fixture(scope='session')
+def userver_config_GPT(mockserver_info):
+    def patch_config(config_yaml, config_vars):
+        components = config_yaml['components_manager']['components']
+        components['yandexgpt-api']['url'] = mockserver_info.url('gpt')
+    return patch_config
+
+
+USERVER_CONFIG_HOOKS.append('userver_config_GPT')

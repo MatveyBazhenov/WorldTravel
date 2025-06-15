@@ -6,9 +6,9 @@
 #include <nlohmann/json.hpp>
 #include <wx/button.h>
 #include <wx/intl.h>
-#include <wx/notebook.h>
 #include <wx/panel.h>
 #include <wx/protocol/http.h>
+#include <wx/simplebook.h>
 #include <wx/sstream.h>
 #include <wx/wx.h>
 

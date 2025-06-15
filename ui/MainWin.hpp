@@ -8,6 +8,7 @@
 #include <wx/icon.h>
 #include <wx/notebook.h>
 #include <wx/panel.h>
+#include <wx/simplebook.h>
 #include <wx/sizer.h>
 class MainWin : public wxFrame {
 public:
@@ -15,7 +16,7 @@ public:
   ~MainWin();
 
 private:
-  wxNotebook *notebook;
+  wxSimplebook *notebook;
   LeftPanel *leftPanel;
   AccountPanel *accountPanel;
   void OnPageChanged(wxBookCtrlEvent &event);

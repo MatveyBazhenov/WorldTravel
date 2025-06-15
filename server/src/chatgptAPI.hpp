@@ -16,6 +16,7 @@
 #include "userver/components/component_context.hpp"
 #include "userver/formats/json/value.hpp"
 #include "userver/formats/json/value_builder.hpp"
+#include "userver/storages/secdist/component.hpp"
 #include "userver/yaml_config/merge_schemas.hpp"
 
 struct Attraction {
@@ -24,86 +25,101 @@ struct Attraction {
 };
 
 class ChatGPTAPI final : public userver::components::LoggableComponentBase {
-public:
-    [[maybe_unused]] static constexpr std::string_view kName = "chatgpt-api";
+    public:
+        static constexpr std::string_view kName = "yandexgpt-api";
+    
+        ChatGPTAPI(const userver::components::ComponentConfig& config,
+                     const userver::components::ComponentContext& context)
+            : userver::components::LoggableComponentBase(config, context),
+              http_client_(&context.FindComponent<userver::components::HttpClient>().GetHttpClient()) {
+            api_url_ = config["url"].As<std::string>();
 
-    ChatGPTAPI(const userver::components::ComponentConfig& config,
-        const userver::components::ComponentContext& context)
-: userver::components::LoggableComponentBase(config, context),
- http_client_(&context.FindComponent<userver::components::HttpClient>().GetHttpClient()) {
-            api_url_ = config["url-chatgpt"].As<std::string>();
-            api_key_ = config["key-chatgpt"].As<std::string>();
+            auto& secdist = context.FindComponent<userver::components::Secdist>().Get();
+            secrets_ = secdist.Get<userver::formats::json::Value>();
+
+            //api_key = secrets_["yandex_key"].As<std::string>();
+            //folder_id_ = secrets_["folder_id"].As<std::string>();
         }
 
-    static userver::yaml_config::Schema GetStaticConfigSchema() {
+        static userver::yaml_config::Schema GetStaticConfigSchema() {
             return userver::yaml_config::MergeSchemas<userver::components::LoggableComponentBase>(R"(
               type: object
-              description: "ChatGPT API component"
+              description: "YandexGPT API component"
               properties:
-                url-chatgpt:
+                url:
                   type: string
-                  description: "URL for the ChatGPT API"
-                key-chatgpt:
+                  description: "YandexGPT API URL"
+                iam-token:
                   type: string
-                  description: "API Key for ChatGPT"
+                  description: "IAM-токен для доступа к Yandex Cloud"
+                folder-id:
+                  type: string
+                  description: "Yandex Cloud Folder ID"
               additionalProperties: false
             )");
-    }
-
-    std::vector<Attraction> GetTravelInfo(userver::formats::json::Value json) {
-        std::string to = json["origin"].As<std::string>();
-        std::vector<Attraction> attractions;
-
-        userver::formats::json::ValueBuilder request_body;
-        userver::formats::json::ValueBuilder messages;
-
-        userver::formats::json::ValueBuilder system_message;
-        system_message["role"] = "system";
-        system_message["content"] = "Provide a structured JSON array with the five main attractions of a city.";
-        messages.PushBack(std::move(system_message));
-
-        userver::formats::json::ValueBuilder user_message;
-        user_message["role"] = "user";
-        user_message["content"] = fmt::format("List the five top attractions in {} with short descriptions as JSON.", to);
-        messages.PushBack(std::move(user_message));
-
-        request_body["model"] = "gpt-3.5-turbo";
-        request_body["messages"] = std::move(messages);
-
-        auto response = http_client_->CreateRequest()
-        .post(api_url_)
-        .timeout(std::chrono::seconds(10))
-        .headers({{"Authorization", "Bearer " + api_key_}, {"Content-Type", "application/json"}})
-        .perform();
-
-
-        const auto& json_response = userver::formats::json::FromString(response->body());
-        if (json_response.HasMember("choices") && json_response["choices"].IsArray()) {
-            auto choices = json_response["choices"];
-            if (!choices.IsEmpty()) {
-                auto content = choices[0]["message"]["content"].As<std::string>();
-                const auto& attractions_json = userver::formats::json::FromString(content);
-
-                if (attractions_json.IsArray()) {
-                    for (auto it = attractions_json.begin(); it != attractions_json.end(); ++it) { 
-                        const auto& item = *it;
-                        Attraction attraction;
-                        if (item.IsObject() && item.HasMember("name") && item["name"].IsString()) {
-                            attraction.name = item["name"].As<std::string>();
-                        }
-                        if (item.IsObject() && item.HasMember("description") && item["description"].IsString()) {
-                            attraction.description = item["description"].As<std::string>();
-                        }
-                        attractions.push_back(attraction);
-                    }
-                }
-            }
         }
-        return attractions;
-    }
+    
+        std::vector<Attraction> GetTravelInfo(userver::formats::json::Value json) {
+            std::string city = json["origin"].As<std::string>();
+            std::vector<Attraction> attractions;
+    
+            userver::formats::json::ValueBuilder request;
+            request["modelUri"] = fmt::format("gpt://{}/yandexgpt/latest", folder_id_);
+            request["completionOptions"]["stream"] = false;
+            request["completionOptions"]["temperature"] = 0.7;
+    
+            userver::formats::json::ValueBuilder user_msg;
+            user_msg["role"] = "user";
+            user_msg["text"] = fmt::format(
+                "Составь JSON-массив из 5 главных достопримечательностей города {}. Укажи \"name\" и \"description\" для каждой.", city);
+    
+            request["messages"].PushBack(std::move(user_msg));
+
+    
+            auto response = http_client_->CreateRequest()
+            .post(api_url_)
+            .timeout(std::chrono::seconds(10))
+            .headers({
+                {"Authorization", "Bearer " + api_key},
+                {"Content-Type", "application/json"}
+            })
+            .data(userver::formats::json::ToString(request.ExtractValue()))
+            .perform();
+    
+            const auto& json_response = userver::formats::json::FromString(response->body());
+    
+            if (!json_response.HasMember("result")) return attractions;
+
+            const auto& result = json_response["result"];
+
+            if (!result.HasMember("alternatives")) return attractions;
+    
+            const auto& alternatives = result["alternatives"];
+            if (alternatives.IsEmpty()) return attractions;
+    
+            const auto& text = alternatives[0]["message"]["text"].As<std::string>();
+    
+            const auto& parsed_attractions = userver::formats::json::FromString(text);
+            if (!parsed_attractions.IsArray()) return attractions;
+    
+            for (const auto& item : parsed_attractions) {
+                Attraction attraction;
+                if (item.HasMember("name")) {
+                    attraction.name = item["name"].As<std::string>();
+                }
+                if (item.HasMember("description")) {
+                    attraction.description = item["description"].As<std::string>();
+                }
+                attractions.push_back(attraction);
+            }
+    
+            return attractions;
+        }
 
 private:
     userver::clients::http::Client* http_client_;
     std::string api_url_;
-    std::string api_key_;
+    std::string api_key;
+    std::string folder_id_;
+    userver::formats::json::Value secrets_;
 };

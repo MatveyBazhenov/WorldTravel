@@ -11,12 +11,13 @@
 #include <userver/storages/postgres/cluster.hpp>
 #include <userver/storages/postgres/component.hpp>
 
-#include "hello.hpp"
+
 #include "login.hpp"
 #include "registration.hpp"
 #include "find.hpp"
 #include "aviasalesAPI.hpp"
 #include "save_trip.hpp"
+#include "account.hpp"
 #include "userver/storages/secdist/component.hpp"
 #include "userver/storages/secdist/provider_component.hpp"
 #include "chatgptAPI.hpp"
@@ -34,12 +35,12 @@ int main(int argc, char* argv[]) {
                             .Append<userver::components::DefaultSecdistProvider>()
                             .Append<userver::components::Secdist>()
                             .Append<my_service::HttpClientComponent>()
-                            .Append<my_service::SaveTripHandler>();
+                            .Append<my_service::SaveTripHandler>()
+                            .Append<my_service::AccountHandler>();
                             
 
-  service_template::AppendHello(component_list);
-  service_template::AppendLogin(component_list);
-  service_template::AppendRegistration(component_list);
+  my_service::AppendLogin(component_list);
+  my_service::AppendRegistration(component_list);
 
   return userver::utils::DaemonMain(argc, argv, component_list);
 }

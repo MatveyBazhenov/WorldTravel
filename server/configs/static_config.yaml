@@ -47,9 +47,8 @@ components_manager:
             url-IATA: $aviasales-url-IATA
             url-aviasales: $aviasales-url-main
 
-        chatgpt-api:
-            url-chatgpt: $chatgpt-url
-            key-chatgpt: $chatgpt-key
+        yandexgpt-api:
+            url: $yandexgpt-url
         
         tests-control:
             load-enabled: $is-testing
@@ -63,11 +62,6 @@ components_manager:
             task_processor: main-task-processor
             throttling_enabled: false
             url_trailing_slash: strict-match
-
-        handler-hello:                    # Finally! Our handler.
-            path: /v1/hello               # Registering handler by URL '/v1/hello'.
-            method: POST                  # It will only reply to POST requests.
-            task_processor: main-task-processor  # Run it on CPU bound task processor
 
         http-client-component:
             path: /http-client
@@ -87,6 +81,11 @@ components_manager:
         handler-save_trip:
             path: /save-trip
             method: POST
+            task_processor: main-task-processor
+        
+        handler-account:
+            path: /account
+            method: GET
             task_processor: main-task-processor
             
         postgres-db-1:

@@ -35,7 +35,7 @@ class SaveTripHandler final : public userver::server::handlers::HttpHandlerBase 
       //                  kInsertUserQuery, "test-user", "test-password", "test");
 
       constexpr const char* kInsertTripQuery = R"(
-      INSERT INTO WorldTravel.trips (user_key, origin_city, destination_city, origin_IATA, destination_IATA, departure_at, price) VALUES ($1, $2, $3, $4, $5, $6, $7)
+      INSERT INTO WorldTravel.trips (user_key, origin_city, destination_city, origin_IATA, destination_IATA, departure_at, price, description_city) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       )";
 
       auto result = postgres_->Execute(
@@ -47,7 +47,8 @@ class SaveTripHandler final : public userver::server::handlers::HttpHandlerBase 
           json["origin_IATA"].As<std::string>(),
           json["destination_IATA"].As<std::string>(),
           json["departure_at"].As<std::string>(),
-          json["price"].As<int>()
+          json["price"].As<int>(),
+          json["description_city"].As<std::string>()
       );
 
       return R"({"status": "ok"})";
