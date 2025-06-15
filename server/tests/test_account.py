@@ -127,3 +127,73 @@ async def test_get_multiple_trips(service_client, pgsql):
         "Attraction 2": "Detailed description 2",
         "Park 2": "Beautiful park 2"
     }
+
+import asyncio
+import time
+import uuid
+
+@pytest.mark.pgsql('db_1')
+async def test_batch_account(service_client, pgsql):
+    cursor = pgsql['db_1'].cursor()
+    user_keys = [str(uuid.uuid4()) for _ in range(10000)]
+    cursor.executemany(
+        "INSERT INTO WorldTravel.users (username, password, user_key) VALUES (%s, %s, %s)",
+        [(f"user_{i}", f"pass_{i}", user_keys[i]) for i in range(10000)]
+    )
+    trips = []
+    for i, user_key in enumerate(user_keys):
+        for j in range(3): 
+            trip = {
+                'user_key': user_key,
+                'origin': f'City_{i}_{j}',
+                'dest': f'Dest_{i}_{j}',
+                'origin_iata': f'ORI{i}{j}',
+                'dest_iata': f'DES{i}{j}',
+                'date': f'2025-01-01T12:00:00+03:00',
+                'price': 10000,
+                'description': {
+                    f"Attraction_{i}_{j}": f"Description_{i}_{j}",
+                    f"Park_{i}_{j}": f"Beautiful park {i}_{j}"
+                }
+            }
+            trips.append((
+                user_key,
+                trip['origin'],
+                trip['dest'],
+                trip['origin_iata'],
+                trip['dest_iata'],
+                trip['date'],
+                trip['price'],
+                json.dumps(trip['description'])
+            ))
+
+    cursor.executemany(
+        """
+        INSERT INTO WorldTravel.trips 
+        (user_key, origin_city, destination_city, origin_IATA, destination_IATA, 
+         departure_at, price, description_city) 
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """,
+        trips
+    )
+
+    async def _account_user(user_num: int):
+        response = await service_client.get(
+            '/account',
+            params={'user_key': user_keys[user_num]}
+        )
+        return response.status == 200
+
+    start_time = time.time()
+
+    results = await asyncio.gather(
+        *(_account_user(i) for i in range(10000))
+    )
+    
+    elapsed_time = time.time() - start_time
+    success = sum(results)
+    
+    # assert False, f'Total: {elapsed_time} seconds\n  Successful logins: {success}\n Logins per second: {10000 / elapsed_time}'
+    # Total: 14.554787635803223 seconds Successful logins: 10000 Logins per second: 687.059148523821
+    
+    assert all(results), f"Not all requests were successful. Success: {success} out of 10000"

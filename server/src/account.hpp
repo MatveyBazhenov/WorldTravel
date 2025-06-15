@@ -64,7 +64,11 @@ class AccountHandler final : public userver::server::handlers::HttpHandlerBase {
             trip["destination_city"] = row["destination_city"].As<std::string>();
             trip["origin_IATA"] = row["origin_IATA"].As<std::string>();
             trip["destination_IATA"] = row["destination_IATA"].As<std::string>();
-            trip["departure_at"] = row["departure_at"].As<std::string>();
+            if (!row["departure_at"].IsNull()) {
+              trip["departure_at"] = row["departure_at"].As<std::string>();
+          } else {
+              trip["departure_at"] = "";
+          }
             trip["price"] = row["price"].As<int>();
             if (!row["description_city"].IsNull()) {
                 try {
@@ -75,10 +79,10 @@ class AccountHandler final : public userver::server::handlers::HttpHandlerBase {
                         trip["description_city"] = userver::formats::json::MakeObject();
                     }
                 } catch (const std::exception& e) {
-                    trip["description_city"] = userver::formats::json::MakeObject(); // fallback
+                    trip["description_city"] = userver::formats::json::MakeObject(); 
                 }
             } else {
-                trip["description_city"] = userver::formats::json::MakeObject(); // fallback
+                trip["description_city"] = userver::formats::json::MakeObject(); 
             }
             vector_trips.PushBack(std::move(trip));
           }
