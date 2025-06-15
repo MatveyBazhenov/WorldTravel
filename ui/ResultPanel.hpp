@@ -1,6 +1,7 @@
 #ifndef RESULTPANEL_HPP
 #define RESULTPANEL_HPP
 
+#include <wx/wx.h>
 #include <nlohmann/json.hpp>
 #include <wx/buffer.h>
 #include <wx/button.h>
@@ -14,7 +15,6 @@
 #include <wx/socket.h>
 #include <wx/sstream.h>
 #include <wx/statline.h>
-#include <wx/wx.h>
 
 const int ID_DESCRIBTION = wxID_HIGHEST + 1;
 const int ID_BACK2 = wxID_HIGHEST + 2;
