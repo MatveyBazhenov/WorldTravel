@@ -72,9 +72,13 @@ class AccountHandler final : public userver::server::handlers::HttpHandlerBase {
             trip["price"] = row["price"].As<int>();
             if (!row["description_city"].IsNull()) {
                 try {
-                    auto raw_str = row["description_city"].As<std::string>();
+                    const auto& raw_str = row["description_city"].As<std::string>();
                     if (!raw_str.empty()) {
+                      try {
                         trip["description_city"] = userver::formats::json::FromString(raw_str);
+                      } catch (std:: exception&) {
+                        trip["description_city"] = raw_str;
+                      }  
                     } else {
                         trip["description_city"] = userver::formats::json::MakeObject();
                     }
